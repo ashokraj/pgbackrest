@@ -13,7 +13,7 @@ use Carp qw(confess);
 use DBI;
 use Exporter qw(import);
 use Fcntl ':mode';
-use File::Basename qw(dirname);
+use File::Basename qw(dirname basename);
 use File::Copy 'cp';
 use File::stat;
 use Time::HiRes qw(gettimeofday);
@@ -232,7 +232,7 @@ sub backupTestRun
 
                         $oHostDbMaster->executeSimple(
                             $strCommand .  ($bRemote && $iBackup == $iArchive ? ' --cmd-ssh=/usr/bin/ssh' : '') .
-                                " ${strSourceFile}",
+                                " ${strSourceFile} " . basename($strSourceFile),
                             {oLogTest => $oLogTest});
 
                         # Make sure the temp file no longer exists
@@ -263,7 +263,7 @@ sub backupTestRun
                             &log(INFO, '        test db version mismatch error');
 
                             $oHostDbMaster->executeSimple(
-                                $strCommand . " ${strSourceFile}",
+                                $strCommand . " ${strSourceFile} " . basename($strSourceFile),
                                 {iExpectedExitStatus => ERROR_ARCHIVE_MISMATCH, oLogTest => $oLogTest});
 
 
@@ -275,7 +275,7 @@ sub backupTestRun
                             &log(INFO, '        test db system-id mismatch error');
 
                             $oHostDbMaster->executeSimple(
-                                $strCommand . " ${strSourceFile}",
+                                $strCommand . " ${strSourceFile} " . basename($strSourceFile),
                                 {iExpectedExitStatus => ERROR_ARCHIVE_MISMATCH, oLogTest => $oLogTest});
 
                             # Restore the file to its original condition
@@ -291,7 +291,7 @@ sub backupTestRun
                                     my $oExecArchive =
                                         $oHostDbMaster->execute(
                                             $strCommand . ' --test --test-delay=5 --test-point=' .
-                                            lc(TEST_ARCHIVE_PUSH_ASYNC_START) . "=y ${strSourceFile}",
+                                            lc(TEST_ARCHIVE_PUSH_ASYNC_START) . "=y ${strSourceFile} " . basename($strSourceFile),
                                             {oLogTest => $oLogTest, iExpectedExitStatus => ERROR_TERM});
                                     $oExecArchive->begin();
                                     $oExecArchive->end(TEST_ARCHIVE_PUSH_ASYNC_START);
@@ -305,7 +305,7 @@ sub backupTestRun
                                 }
 
                                 $oHostDbMaster->executeSimple(
-                                    $strCommand . " ${strSourceFile}",
+                                    $strCommand . " ${strSourceFile} " . basename($strSourceFile),
                                     {oLogTest => $oLogTest, iExpectedExitStatus => ERROR_STOP});
 
                                 $oHostDbMaster->start({strStanza => $bArchiveAsync ? undef : $strStanza});
@@ -314,51 +314,52 @@ sub backupTestRun
                             # Should succeed because checksum is the same
                             &log(INFO, '        test archive duplicate ok');
 
-                            $oHostDbMaster->executeSimple($strCommand . " ${strSourceFile}", {oLogTest => $oLogTest});
+                            $oHostDbMaster->executeSimple(
+                                $strCommand . " ${strSourceFile} " . basename($strSourceFile), {oLogTest => $oLogTest});
 
                             # Now it should break on archive duplication (because checksum is different
                             &log(INFO, '        test archive duplicate error');
 
                             ($strArchiveFile, $strSourceFile) = archiveGenerate($oFile, $strXlogPath, 1, $iArchiveNo);
                             $oHostDbMaster->executeSimple(
-                                $strCommand . " ${strSourceFile}",
+                                $strCommand . " ${strSourceFile} " . basename($strSourceFile),
                                 {iExpectedExitStatus => ERROR_ARCHIVE_DUPLICATE, oLogTest => $oLogTest});
 
-                            if ($bArchiveAsync)
-                            {
-                                my $strDuplicateWal =
-                                    ($bRemote ? $oHostDbMaster->spoolPath() :
-                                                $oHostBackup->repoPath()) .
-                                    "/archive/${strStanza}/out/${strArchiveFile}-4518a0fdf41d796760b384a358270d4682589820";
-
-                                fileRemove($strDuplicateWal);
-                            }
+                            # if ($bArchiveAsync)
+                            # {
+                            #     my $strDuplicateWal =
+                            #         ($bRemote ? $oHostDbMaster->spoolPath() :
+                            #                     $oHostBackup->repoPath()) .
+                            #         "/archive/${strStanza}/out/${strArchiveFile}-4518a0fdf41d796760b384a358270d4682589820";
+                            #
+                            #     fileRemove($strDuplicateWal);
+                            # }
 
                             # Test .partial archive
                             &log(INFO, '        test .partial archive');
                             ($strArchiveFile, $strSourceFile) = archiveGenerate($oFile, $strXlogPath, 2, $iArchiveNo, true);
-                            $oHostDbMaster->executeSimple($strCommand . " ${strSourceFile}", {oLogTest => $oLogTest});
+                            $oHostDbMaster->executeSimple($strCommand . " ${strSourceFile} " . basename($strSourceFile), {oLogTest => $oLogTest});
                             archiveCheck($oFile, $strArchiveFile, $strArchiveChecksum, $bCompress);
 
                             # Test .partial archive duplicate
                             &log(INFO, '        test .partial archive duplicate');
-                            $oHostDbMaster->executeSimple($strCommand . " ${strSourceFile}", {oLogTest => $oLogTest});
+                            $oHostDbMaster->executeSimple($strCommand . " ${strSourceFile} " . basename($strSourceFile), {oLogTest => $oLogTest});
 
                             # Test .partial archive with different checksum
                             &log(INFO, '        test .partial archive with different checksum');
                             ($strArchiveFile, $strSourceFile) = archiveGenerate($oFile, $strXlogPath, 1, $iArchiveNo, true);
                             $oHostDbMaster->executeSimple(
-                                $strCommand . " ${strSourceFile}",
+                                $strCommand . " ${strSourceFile} " . basename($strSourceFile),
                                 {iExpectedExitStatus => ERROR_ARCHIVE_DUPLICATE, oLogTest => $oLogTest});
 
-                            if ($bArchiveAsync)
-                            {
-                                my $strDuplicateWal =
-                                    ($bRemote ? $oHostDbMaster->spoolPath() : $oHostBackup->repoPath()) .
-                                    "/archive/${strStanza}/out/${strArchiveFile}-4518a0fdf41d796760b384a358270d4682589820";
-
-                                fileRemove($strDuplicateWal);
-                            }
+                            # if ($bArchiveAsync)
+                            # {
+                            #     my $strDuplicateWal =
+                            #         ($bRemote ? $oHostDbMaster->spoolPath() : $oHostBackup->repoPath()) .
+                            #         "/archive/${strStanza}/out/${strArchiveFile}-4518a0fdf41d796760b384a358270d4682589820";
+                            #
+                            #     fileRemove($strDuplicateWal);
+                            # }
                         }
 
                         archiveCheck($oFile, $strArchiveFile, $strArchiveChecksum, $bCompress);

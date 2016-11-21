@@ -988,6 +988,7 @@ my %oOptionRule =
         &OPTION_RULE_ALLOW_RANGE => [OPTION_DEFAULT_ARCHIVE_TIMEOUT_MIN, OPTION_DEFAULT_ARCHIVE_TIMEOUT_MAX],
         &OPTION_RULE_COMMAND =>
         {
+            &CMD_ARCHIVE_PUSH => true,
             &CMD_BACKUP => true,
             &CMD_CHECK => true,
             &CMD_STANZA_CREATE => true,

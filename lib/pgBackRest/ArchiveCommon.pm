@@ -28,7 +28,7 @@ sub lsnNormalize
     ) =
         logDebugParam
         (
-            __PACKAGE__ . 'lsnFile', \@_,
+            __PACKAGE__ . '::lsnFile', \@_,
             {name => 'strLsn', trace => true},
         );
 
@@ -54,6 +54,37 @@ sub lsnNormalize
 push @EXPORT, qw(lsnNormalize);
 
 ####################################################################################################################################
+# lsnFromFile
+#
+# Gets the LSN from a filename.
+####################################################################################################################################
+sub lsnFromFile
+{
+    # Assign function parameters, defaults, and log debug info
+    my
+    (
+        $strOperation,
+        $strWalSegment
+    ) =
+        logDebugParam
+        (
+            __PACKAGE__ . '::lsnFromFile', \@_,
+            {name => 'strWalSegment', trace => true}
+        );
+
+    my $strLsn = sprintf("%x/%x000000", hex(substr($strWalSegment, 8, 8)), hex(substr($strWalSegment, 16, 2)));
+
+    # Return from function and log return values if any
+    return logDebugReturn
+    (
+        $strOperation,
+        {name => 'strLsn', value => $strLsn, trace => true}
+    );
+}
+
+push @EXPORT, qw(lsnFromFile);
+
+####################################################################################################################################
 # lsnFileRange
 #
 # Generates a range of WAL filenames given the start and stop LSN.  For pre-9.3 databases, use bSkipFF to exclude the FF that
@@ -71,7 +102,7 @@ sub lsnFileRange
     ) =
         logDebugParam
         (
-            __PACKAGE__ . 'lsnFileRange', \@_,
+            __PACKAGE__ . '::lsnFileRange', \@_,
             {name => 'strLsnStart'},
             {name => 'strLsnStop'},
             {name => '$strDbVersion'},
