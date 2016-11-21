@@ -309,6 +309,12 @@ sub backupTestRun
                                     {oLogTest => $oLogTest, iExpectedExitStatus => ERROR_STOP});
 
                                 $oHostDbMaster->start({strStanza => $bArchiveAsync ? undef : $strStanza});
+
+                                $oHostDbMaster->executeSimple(
+                                    $strCommand . " ${strSourceFile} " . basename($strSourceFile),
+                                    {oLogTest => $oLogTest});
+
+                                exit;
                             }
 
                             # Should succeed because checksum is the same

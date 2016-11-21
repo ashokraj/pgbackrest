@@ -13,6 +13,7 @@ use Exporter qw(import);
 use Fcntl qw(SEEK_CUR O_RDONLY O_WRONLY O_CREAT);
 use File::Basename qw(dirname basename);
 use Scalar::Util qw(blessed);
+use IPC::SharedMem;
 
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Lock;
@@ -582,6 +583,9 @@ sub pushProcess
         confess &log(ERROR, 'wal segment to push required', ERROR_PARAM_REQUIRED);
     }
 
+    # Check for a stop lock
+    lockStopTest();
+
     # Only do async archiving when this file being archived is a WAL segment, otherwise do it synchronously
     my $bArchiveAsync = optionGet(OPTION_ARCHIVE_ASYNC) && $strWalSegmentFile =~ '^[0-F]{24}$';
 
@@ -617,8 +621,7 @@ sub pushProcess
             }
             else
             {
-                # $bArchiveAsync = fork() == 0 ? true : false;
-                $bArchiveAsync = true;
+                $bArchiveAsync = fork() == 0 ? true : false;
             }
 
             # Create the spool directory name
@@ -627,6 +630,9 @@ sub pushProcess
             # If this is the child process then run async archiving
             if ($bArchiveAsync)
             {
+                # Disable console logging
+                logLevelSet(undef, OFF);
+
                 # Set stop and start WAL segments
                 my $strWalSegmentPath = dirname($strWalSegment);
                 my $strWalSegmentStart = $strWalSegmentFile;
@@ -637,6 +643,9 @@ sub pushProcess
 
                 # Open the log file
                 logFileSet(optionGet(OPTION_LOG_PATH) . '/' . optionGet(OPTION_STANZA) . '-archive-async');
+
+                # Create the spool path if it does not already exist
+                filePathCreate($strSpoolPath, undef, true, true);
 
                 # Call the archive_xfer function and continue to loop as long as there are files to process
                 my $iLogTotal;
@@ -682,8 +691,18 @@ sub pushProcess
                     confess &log(ERROR, "timeout waiting for ${strWalSegmentFile} to archive asynchronously");
                 }
 
-                # Else remove the .done file
-                fileRemove($strDoneFile);
+                # Read and remove the .done file
+                my @stryDone = split("\n", fileStringRead("${strSpoolPath}/${strWalSegmentFile}.done"));
+                &log(WARN, fileStringRead("${strSpoolPath}/${strWalSegmentFile}.done"));
+                fileMove($strDoneFile, "${strSpoolPath}/${strWalSegmentFile}.ack");
+
+                if ($stryDone[0] ne '0')
+                {
+                    my $iErrorCode = $stryDone[0] + 0;
+                    shift(@stryDone);
+
+                    confess &log(ERROR, join("\n", @stryDone), $iErrorCode);
+                }
             }
         }
     }
@@ -729,8 +748,6 @@ sub push
         $bAsync ? optionGet(OPTION_SPOOL_PATH) : optionGet(OPTION_REPO_PATH),
         protocolGet($bAsync ? NONE : BACKUP)
     );
-
-    lockStopTest();
 
     # If the source file path is not absolute then it is relative to the data path
     if (index($strSourceFile, '/') != 0)
@@ -1004,7 +1021,37 @@ sub xfer
             # Transfer each file
             foreach my $strFile (sort @stryFile)
             {
-                $self->push("${strWalSegmentPath}/${strFile}", false);
+                my $strDoneFile = "${strSpoolPath}/${strFile}.done";
+
+                if (!fileExists($strDoneFile))
+                {
+                    eval
+                    {
+                        $self->push("${strWalSegmentPath}/${strFile}", false);
+                        fileStringWrite($strDoneFile, '0');
+
+                        return true;
+                    }
+                    or do
+                    {
+                        my $oException = $EVAL_ERROR;
+                        my $iErrorCode;
+                        my $strErrorMessage;
+
+                        if (isException($oException))
+                        {
+                            $iErrorCode = $oException->code();
+                            $strErrorMessage = $oException->message();
+                        }
+                        else
+                        {
+                            $iErrorCode = ERROR_UNKNOWN;
+                            $strErrorMessage = $oException;
+                        }
+
+                        fileStringWrite($strDoneFile, "${iErrorCode}\n${strErrorMessage}");
+                    };
+                }
 
             #     # Construct the archive filename to backup
             #     my $strArchiveFile = "${strArchivePath}/${strFile}";
