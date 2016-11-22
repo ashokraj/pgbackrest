@@ -34,6 +34,7 @@ use pgBackRest::Config::Config;
 use pgBackRest::DbVersion;
 use pgBackRest::FileCommon;
 use pgBackRest::Version;
+use Book::Factorial;
 
 use BackRestDoc::Custom::DocCustomRelease;
 
