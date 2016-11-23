@@ -1,6 +1,6 @@
-Make*
+Makefile*
 MYMETA.*
-Factorial.c
+Factorial.*
 *.o
 pm_to_blib
 blib
