@@ -1,18 +1,14 @@
-# Before 'make install' is performed this script should be runnable with
-# 'make test'. After 'make install' it should work as 'perl pgBackRest-LibC.t'
-
-#########################
-
-# change 'tests => 1' to 'tests => last_test_to_print';
-
+####################################################################################################################################
+# pgBackRest-LibC.t - Unit tests for the LibC module
+####################################################################################################################################
 use strict;
 use warnings;
 
+# Set number of tests
 use Test::More tests => 2;
+
+# Make sure the module loads without errors
 BEGIN {use_ok('pgBackRest::LibC')};
 
-#########################
-
-# Insert your test code below, the Test::More module is use()ed here so read
-# its man page ( perldoc Test::More ) for help writing this test script.
-ok (UVSIZE == 8);
+# UVSIZE determines the pointer and long long int size.  This needs to be 8 to indicate 64-bit types are available.
+ok (UVSIZE == 8, 'UVSIZE == 8');
