@@ -1,8 +1,0 @@
-Changes
-LibC.xs
-Makefile.PL
-MANIFEST
-ppport.h
-README
-t/pgBackRest-LibC.t
-lib/pgBackRest/LibC.pm
