@@ -13,6 +13,8 @@ our %EXPORT_TAGS =
         [qw(
             factorial_iterative_c
             factorial_recursive_c
+            returnMagic
+            returnMagic2
         )]
 );
 

@@ -37,7 +37,7 @@ use pgBackRest::Version;
 
 use lib dirname($0) . '/../libc/lib';
 use lib dirname($0) . '/../libc/blib/arch';
-use pgBackRest::LibC qw(factorial_iterative_c);
+use pgBackRest::LibC qw(factorial_iterative_c returnMagic returnMagic2);
 
 # rm -rf pgBackRest-LibC
 # h2xs -Afn pgBackRest::LibC
@@ -48,6 +48,7 @@ use pgBackRest::LibC qw(factorial_iterative_c);
 # make
 # sudo make install
 
+confess "Magic 1000:" . returnMagic2(1) . "\n";
 confess "FACT 3:" . factorial_iterative_c(3) . "\n";
 
 use BackRestDoc::Custom::DocCustomRelease;

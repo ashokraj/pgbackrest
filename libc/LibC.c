@@ -16,7 +16,16 @@
 
 #include <factorial.h>
 
-#line 20 "LibC.c"
+/*
+ * The following C types are mapped by the current typemap:
+ * 'AV *', 'Boolean', 'CV *', 'FILE *', 'FileHandle', 'HV *', 'I16', 'I32', 'I8', 'IV', 'InOutStream', 'InputStream', 'NV',
+ * 'OutputStream', 'PerlIO *', 'Result', 'STRLEN', 'SV *', 'SVREF', 'SysRet', 'SysRetLong', 'Time_t *', 'U16', 'U32', 'U8', 'UV',
+ * 'bool', 'bool_t', 'caddr_t', 'char', 'char *', 'char **', 'const char *', 'double', 'float', 'int', 'long', 'short', 'size_t',
+ * 'ssize_t', 'time_t', 'unsigned', 'unsigned char', 'unsigned char *', 'unsigned int', 'unsigned long', 'unsigned long *',
+ * 'unsigned short', 'void *', 'wchar_t', 'wchar_t *'
+ */
+
+#line 29 "LibC.c"
 #ifndef PERL_UNUSED_VAR
 #  define PERL_UNUSED_VAR(var) if (0) var = var
 #endif
@@ -160,7 +169,7 @@ S_croak_xs_usage(const CV *const cv, const char *const params)
 #  define newXS_deffile(a,b) Perl_newXS_deffile(aTHX_ a,b)
 #endif
 
-#line 164 "LibC.c"
+#line 173 "LibC.c"
 
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c); /* prototype to pass -Wmissing-prototypes */
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c)
@@ -199,6 +208,44 @@ XS_EUPXS(XS_pgBackRest__LibC_factorial_recursive_c)
     XSRETURN(1);
 }
 
+
+XS_EUPXS(XS_pgBackRest__LibC_returnMagic); /* prototype to pass -Wmissing-prototypes */
+XS_EUPXS(XS_pgBackRest__LibC_returnMagic)
+{
+    dVAR; dXSARGS;
+    if (items != 1)
+       croak_xs_usage(cv,  "x");
+    {
+	U16	x = (unsigned short)SvUV(ST(0))
+;
+	U16	RETVAL;
+	dXSTARG;
+
+	RETVAL = returnMagic(x);
+	XSprePUSH; PUSHu((UV)RETVAL);
+    }
+    XSRETURN(1);
+}
+
+
+XS_EUPXS(XS_pgBackRest__LibC_returnMagic2); /* prototype to pass -Wmissing-prototypes */
+XS_EUPXS(XS_pgBackRest__LibC_returnMagic2)
+{
+    dVAR; dXSARGS;
+    if (items != 1)
+       croak_xs_usage(cv,  "x");
+    {
+	UV	x = (UV)SvUV(ST(0))
+;
+	UV	RETVAL;
+	dXSTARG;
+
+	RETVAL = returnMagic2(x);
+	XSprePUSH; PUSHu((UV)RETVAL);
+    }
+    XSRETURN(1);
+}
+
 #ifdef __cplusplus
 extern "C"
 #endif
@@ -229,6 +276,8 @@ XS_EXTERNAL(boot_pgBackRest__LibC)
 
         newXS_deffile("pgBackRest::LibC::factorial_iterative_c", XS_pgBackRest__LibC_factorial_iterative_c);
         newXS_deffile("pgBackRest::LibC::factorial_recursive_c", XS_pgBackRest__LibC_factorial_recursive_c);
+        newXS_deffile("pgBackRest::LibC::returnMagic", XS_pgBackRest__LibC_returnMagic);
+        newXS_deffile("pgBackRest::LibC::returnMagic2", XS_pgBackRest__LibC_returnMagic2);
 #if PERL_VERSION_LE(5, 21, 5)
 #  if PERL_VERSION_GE(5, 9, 0)
     if (PL_unitcheckav)
