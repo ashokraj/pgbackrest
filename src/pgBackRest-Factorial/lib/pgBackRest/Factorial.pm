@@ -2,58 +2,91 @@ package pgBackRest::Factorial;
 
 use 5.022001;
 use strict;
+use warnings;
 
-use vars  qw($VERSION);
-$VERSION = '0.01';
+require Exporter;
 
-use base qw(DynaLoader);
+our @ISA = qw(Exporter);
 
-bootstrap pgBackRest::Factorial $VERSION;
+# Items to export into callers namespace by default. Note: do not export
+# names by default without a very good reason. Use EXPORT_OK instead.
+# Do not simply export all your public functions/methods/constants.
 
-sub factorial_recursive_perl {
-    return 1 if $_[0] < 2;
-    return $_[0] * factorial_recursive_perl($_[0] - 1);
-}
+# This allows declaration	use pgBackRest::Factorial ':all';
+# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
+# will save memory.
+our %EXPORT_TAGS = ( 'all' => [ qw(
+	factorial_iterative_c
+	factorial_recursive_c
+) ] );
 
-sub factorial_iterative_perl {
-    my $return = 1;
-    $return *= $_ for 2..$_[0];
-    return $return;
-}
+our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+
+our @EXPORT = qw(
+	
+);
+
+our $VERSION = '0.01';
+
+require XSLoader;
+XSLoader::load('pgBackRest::Factorial', $VERSION);
+
+# Preloaded methods go here.
 
 1;
 __END__
+# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Book::Factorial - Perl and C, Recursive and Iterative Factorial
-Calculation Functions
+pgBackRest::Factorial - Perl extension for blah blah blah
 
 =head1 SYNOPSIS
 
-  use Book::Factorial;
-  $input = 5;
-  $result = Book::Factorial::factorial_iterative_c(   $input);
-  $result = Book::Factorial::factorial_recursive_c(   $input);
-  $result = Book::Factorial::factorial_iterative_perl($input);
-  $result = Book::Factorial::factorial_recursive_perl($input);
+  use pgBackRest::Factorial;
+  blah blah blah
 
 =head1 DESCRIPTION
 
-This module provides functions to calculate a factorial using
-recursive and iterative algorithms, whose internal implementation are
-coded in Perl and C.
+Stub documentation for pgBackRest::Factorial, created by h2xs. It looks like the
+author of the extension was negligent enough to leave the stub
+unedited.
 
-=head2 EXPORTS
+Blah blah blah.
 
-None.
+=head2 EXPORT
 
-=head1 AUTHORS
+None by default.
 
-Eric Cholet <email address> and Stas Bekman <email address>
+=head2 Exportable functions
+
+  double factorial_iterative_c(int x)
+  double factorial_recursive_c(int x)
+
+
 
 =head1 SEE ALSO
 
-perl(1).
+Mention other useful documentation such as the documentation of
+related modules or operating system documentation (such as man pages
+in UNIX), or any relevant external documentation such as RFCs or
+standards.
+
+If you have a mailing list set up for your module, mention it here.
+
+If you have a web site set up for your module, mention it here.
+
+=head1 AUTHOR
+
+vagrant, E<lt>vagrant@E<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2016 by vagrant
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.22.1 or,
+at your option, any later version of Perl 5 you may have available.
+
 
 =cut

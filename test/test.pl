@@ -25,6 +25,8 @@ use lib dirname($0) . '/lib';
 use lib dirname($0) . '/../lib';
 use lib dirname($0) . '/../doc/lib';
 
+use pgBackRest::Factorial qw(factorial_iterative_c);
+
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Ini;
 use pgBackRest::Common::Log;
@@ -34,7 +36,6 @@ use pgBackRest::Config::Config;
 use pgBackRest::DbVersion;
 use pgBackRest::FileCommon;
 use pgBackRest::Version;
-use pgBackRest::Factorial;
 # rm -rf pgBackRest-Factorial
 # h2xs -Afn pgBackRest::Factorial
 # h2xs -AOxan pgBackRest::Factorial factorial.h
@@ -45,6 +46,7 @@ use pgBackRest::Factorial;
 # sudo make install
 
 confess "FACT 3:" . pgBackRest::Factorial::factorial_iterative_c(3) . "\n";
+confess "EXIT";
 
 use BackRestDoc::Custom::DocCustomRelease;
 
