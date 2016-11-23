@@ -277,6 +277,11 @@
             <execute-list host="{[host-db-master]}">
                 <title>Create the demo cluster</title>
 
+                <execute user="postgres" output="y" filter="n">
+                    <exe-cmd>
+                        /usr/lib/postgresql/{[pg-version]}/bin/initdb
+                            -D {[db-path]} -k -A peer</exe-cmd>
+                </execute>
                 <execute user="root" output="y" filter="n">
                     <exe-cmd>{[db-cluster-create]}</exe-cmd>
                 </execute>
