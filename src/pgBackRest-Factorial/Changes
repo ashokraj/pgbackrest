@@ -1,0 +1,6 @@
+Revision history for Perl extension pgBackRest::Factorial.
+
+0.01  Wed Nov 23 00:38:39 2016
+	- original version; created by h2xs 1.23 with options
+		-AOxan pgBackRest::Factorial factorial.h
+

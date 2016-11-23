@@ -34,7 +34,17 @@ use pgBackRest::Config::Config;
 use pgBackRest::DbVersion;
 use pgBackRest::FileCommon;
 use pgBackRest::Version;
-use Book::Factorial;
+use pgBackRest::Factorial;
+# rm -rf pgBackRest-Factorial
+# h2xs -Afn pgBackRest::Factorial
+# h2xs -AOxan pgBackRest::Factorial factorial.h
+# cp factorial.* pgBackRest-Factorial
+# cd pgBackRest-Factorial
+# perl Makefile.PL
+# make
+# sudo make install
+
+confess "FACT 3:" . pgBackRest::Factorial::factorial_iterative_c(3) . "\n";
 
 use BackRestDoc::Custom::DocCustomRelease;
 
