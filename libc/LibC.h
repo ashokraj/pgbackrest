@@ -16,6 +16,12 @@ typedef IV int64;      /* == 64 bits */
 #define DUDEMAN 69
 #define DUDESTRING "It's a String"
 
+/***********************************************************************************************************************************
+Each data file (heap or index) is divided into postgres disk blocks (which may be thought of as the unit of i/o -- a postgres
+buffer contains exactly one disk block). The blocks are numbered sequentially, 0 to 0xFFFFFFFE.
+***********************************************************************************************************************************/
+typedef uint32 BlockNumber;
+
 // typedef enum ScanDirection
 // {
 // 	BackwardScanDirection = -1,
@@ -25,3 +31,5 @@ typedef IV int64;      /* == 64 bits */
 
 uint16 returnMagic(uint16 x);
 uint64 returnMagic2(uint64 x);
+
+uint16 pg_checksum_page(char *page, uint32 blkno, uint32 pageSize);

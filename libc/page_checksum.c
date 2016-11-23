@@ -67,12 +67,6 @@ minimize register spilling. For less sophisticated compilers it might be benefic
 #include "LibC.h"
 
 /***********************************************************************************************************************************
-Each data file (heap or index) is divided into postgres disk blocks (which may be thought of as the unit of i/o -- a postgres
-buffer contains exactly one disk block). The blocks are numbered sequentially, 0 to 0xFFFFFFFE.
-***********************************************************************************************************************************/
-typedef uint32 BlockNumber;
-
-/***********************************************************************************************************************************
 For historical reasons, the 64-bit LSN value is stored as two 32-bit values.
 ***********************************************************************************************************************************/
 typedef struct

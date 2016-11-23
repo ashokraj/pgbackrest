@@ -19,6 +19,7 @@ our @ISA = qw(Exporter);
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
     returnMagic returnMagic2
+    pg_checksum_page
 	UVSIZE
 ) ] );
 
