@@ -38,7 +38,7 @@ use pgBackRest::Version;
 # use lib dirname($0) . '/../libc/lib';
 # # use lib dirname($0) . '/../libc/lib/auto';
 # use lib dirname($0) . '/../libc/blib/arch';
-use pgBackRest::LibC qw(factorial_iterative_c returnMagic returnMagic2 UINT64SIZE);
+use pgBackRest::LibC qw(factorial_iterative_c returnMagic returnMagic2 UVSIZE);
 
 # rm -rf pgBackRest-LibC
 # h2xs -Afn pgBackRest::LibC
@@ -49,7 +49,7 @@ use pgBackRest::LibC qw(factorial_iterative_c returnMagic returnMagic2 UINT64SIZ
 # make
 # sudo make install
 
-print "\nUVSIZE:" . UINT64SIZE . "\n";
+print "\nUVSIZE:" . UVSIZE . "\n";
 print "\nMagic 1000:" . returnMagic2(1) . "\n";
 exit;
 confess "FACT 3:" . factorial_iterative_c(3) . "\n";

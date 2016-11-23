@@ -19,7 +19,7 @@ if  (eval {require ExtUtils::Constant; 1}) {
   # you will need to use the generated const-c.inc and const-xs.inc
   # files to replace their "fallback" counterparts before distributing your
   # changes.
-  my @names = (qw(DUDEMAN), qw(UINT64SIZE),
+  my @names = (qw(DUDEMAN), qw(UVSIZE),
             #   {name => 'DUDESTRING', type => 'PV'},
               {name => "BackwardScanDirection", macro=>"1"},
               {name => "ForwardScanDirection", macro=>"1"},

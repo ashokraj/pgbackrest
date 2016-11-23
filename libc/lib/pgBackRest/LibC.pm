@@ -22,7 +22,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 	BackwardScanDirection
 	ForwardScanDirection
 	NoMovementScanDirection
-	UINT64SIZE
+	UVSIZE
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -31,12 +31,13 @@ our @EXPORT = qw(
 	BackwardScanDirection
 	ForwardScanDirection
 	NoMovementScanDirection
-	UINT64SIZE
+	UVSIZE
 );
 
 our $VERSION = '1.00';
 
-sub AUTOLOAD {
+sub AUTOLOAD
+{
     # This AUTOLOAD is used to 'autoload' constants from the constant()
     # XS function.
 
@@ -56,6 +57,7 @@ sub AUTOLOAD {
 	    *$AUTOLOAD = sub { $val };
 #XXX	}
     }
+
     goto &$AUTOLOAD;
 }
 

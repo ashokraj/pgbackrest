@@ -37,7 +37,7 @@ constant (pTHX_ const char *name, STRLEN len, IV *iv_return) {
 use ExtUtils::Constant qw (constant_types C_constant XS_constant);
 
 my $types = {map {($_, 1)} qw(IV)};
-my @names = (qw(DUDEMAN UINT64SIZE),
+my @names = (qw(DUDEMAN UVSIZE),
             {name=>"BackwardScanDirection", type=>"IV", macro=>"1"},
             {name=>"ForwardScanDirection", type=>"IV", macro=>"1"},
             {name=>"NoMovementScanDirection", type=>"IV", macro=>"1"});
@@ -52,20 +52,20 @@ __END__
    */
 
   switch (len) {
-  case 7:
-    if (memEQ(name, "DUDEMAN", 7)) {
-#ifdef DUDEMAN
-      *iv_return = DUDEMAN;
+  case 6:
+    if (memEQ(name, "UVSIZE", 6)) {
+#ifdef UVSIZE
+      *iv_return = UVSIZE;
       return PERL_constant_ISIV;
 #else
       return PERL_constant_NOTDEF;
 #endif
     }
     break;
-  case 10:
-    if (memEQ(name, "UINT64SIZE", 10)) {
-#ifdef UINT64SIZE
-      *iv_return = UINT64SIZE;
+  case 7:
+    if (memEQ(name, "DUDEMAN", 7)) {
+#ifdef DUDEMAN
+      *iv_return = DUDEMAN;
       return PERL_constant_ISIV;
 #else
       return PERL_constant_NOTDEF;

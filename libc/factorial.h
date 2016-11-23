@@ -16,7 +16,6 @@ typedef IV int64;      /* == 64 bits */
 double factorial_recursive_c(int x);
 double factorial_iterative_c(int x);
 
-#define UINT64SIZE 8
 #define DUDEMAN 69
 #define DUDESTRING "It's a String"
 
