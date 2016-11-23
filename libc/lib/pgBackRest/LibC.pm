@@ -18,19 +18,13 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
-    factorial_iterative_c returnMagic returnMagic2
-	BackwardScanDirection
-	ForwardScanDirection
-	NoMovementScanDirection
+    returnMagic returnMagic2
 	UVSIZE
 ) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	BackwardScanDirection
-	ForwardScanDirection
-	NoMovementScanDirection
 	UVSIZE
 );
 

@@ -1,6 +1,6 @@
 #define PERL_NO_GET_CONTEXT
 
-#include <factorial.h>
+#include "LibC.h"
 #include "const-c.inc"
 
 /*
@@ -15,14 +15,6 @@
 MODULE = pgBackRest::LibC    PACKAGE = pgBackRest::LibC
 
 INCLUDE: const-xs.inc
-
-double
-factorial_iterative_c(x)
-    int x
-
-double
-factorial_recursive_c(x)
-    int x
 
 U16
 returnMagic(x)
