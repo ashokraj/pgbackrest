@@ -31,11 +31,9 @@ our @EXPORT = qw(
 
 our $VERSION = '1.00';
 
+# This AUTOLOAD is used to 'autoload' constants from the constant() XS function.
 sub AUTOLOAD
 {
-    # This AUTOLOAD is used to 'autoload' constants from the constant()
-    # XS function.
-
     my $constname;
     our $AUTOLOAD;
     ($constname = $AUTOLOAD) =~ s/.*:://;
@@ -44,13 +42,7 @@ sub AUTOLOAD
     if ($error) { croak $error; }
     {
 	no strict 'refs';
-	# Fixed between 5.005_53 and 5.005_61
-#XXX	if ($] >= 5.00561) {
-#XXX	    *$AUTOLOAD = sub () { $val };
-#XXX	}
-#XXX	else {
 	    *$AUTOLOAD = sub { $val };
-#XXX	}
     }
 
     goto &$AUTOLOAD;
@@ -59,66 +51,5 @@ sub AUTOLOAD
 require XSLoader;
 XSLoader::load('pgBackRest::LibC', $VERSION);
 
-# Preloaded methods go here.
-
-# Autoload methods go after =cut, and are processed by the autosplit program.
-
 1;
 __END__
-# Below is stub documentation for your module. You'd better edit it!
-
-=head1 NAME
-
-pgBackRest::LibC - Perl extension for blah blah blah
-
-=head1 SYNOPSIS
-
-  use pgBackRest::LibC;
-  blah blah blah
-
-=head1 DESCRIPTION
-
-Stub documentation for pgBackRest::LibC, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
-
-=head2 EXPORT
-
-None by default.
-
-=head2 Exportable constants
-
-  BackwardScanDirection
-  ForwardScanDirection
-  NoMovementScanDirection
-  UINT64SIZE
-
-
-
-=head1 SEE ALSO
-
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
-
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
-
-=head1 AUTHOR
-
-vagrant, E<lt>vagrant@E<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2016 by vagrant
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.22.1 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
