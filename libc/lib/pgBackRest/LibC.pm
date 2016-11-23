@@ -15,6 +15,7 @@ our %EXPORT_TAGS =
             factorial_recursive_c
             returnMagic
             returnMagic2
+            UINT64SIZE
         )]
 );
 

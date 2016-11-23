@@ -9,11 +9,6 @@
 #line 1 "LibC.xs"
 #define PERL_NO_GET_CONTEXT
 
-#include "EXTERN.h"
-#include "perl.h"
-#include "XSUB.h"
-#include "ppport.h"
-
 #include <factorial.h>
 
 /*
@@ -25,7 +20,7 @@
  * 'unsigned short', 'void *', 'wchar_t', 'wchar_t *'
  */
 
-#line 29 "LibC.c"
+#line 24 "LibC.c"
 #ifndef PERL_UNUSED_VAR
 #  define PERL_UNUSED_VAR(var) if (0) var = var
 #endif
@@ -169,7 +164,7 @@ S_croak_xs_usage(const CV *const cv, const char *const params)
 #  define newXS_deffile(a,b) Perl_newXS_deffile(aTHX_ a,b)
 #endif
 
-#line 173 "LibC.c"
+#line 168 "LibC.c"
 
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c); /* prototype to pass -Wmissing-prototypes */
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c)
