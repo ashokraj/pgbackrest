@@ -17,7 +17,8 @@ BEGIN {use_ok('pgBackRest::LibC')};
 ok (UVSIZE == 8, 'UVSIZE == 8');
 
 # Read a block with a valid checksum to test checksum functionality
-use pgBackRest::LibC qw(pageChecksum);
+require pgBackRest::LibC;
+pgBackRest::LibC->import(qw(pageChecksum));
 
 {
     my $strPageFile = 't/data/page.bin';
