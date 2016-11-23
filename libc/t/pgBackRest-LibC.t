@@ -70,10 +70,7 @@ pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
     ok (pageChecksumBuffer($tBufferMulti, $iPageSize * 4, 0, $iPageSize), 'pass valid page buffer');
 
     # Reject an invalid page buffer
-    $tBufferMulti =
-        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum + 1) . substr($tBuffer, 10);
-
-    ok (!pageChecksumBuffer($tBufferMulti, $iPageSize, 0, $iPageSize), 'reject invalid page buffer');
+    ok (!pageChecksumBuffer($tBuffer . $tBuffer, $iPageSize * 2, 0, $iPageSize), 'reject invalid page buffer');
 
     # Reject an misaligned page buffer
     ok (!pageChecksumBuffer($tBuffer . substr($tBuffer, 1), $iPageSize * 2, 0, $iPageSize), 'reject misaligned page buffer');
