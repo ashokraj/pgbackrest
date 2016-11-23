@@ -8,7 +8,7 @@ use Carp;
 use Fcntl qw(O_RDONLY);
 
 # Set number of tests
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 # Make sure the module loads without errors
 BEGIN {use_ok('pgBackRest::LibC')};
@@ -41,6 +41,15 @@ pgBackRest::LibC->import(qw(pageChecksum));
         $iPageChecksumTest == $iPageChecksum,
         'page checksum test (' . sprintf('%X', $iPageChecksumTest) .
         ') == page checksum (' . sprintf('%X', $iPageChecksum) . ')');
+
+    # Test the checksum on a different block no
+    $iPageChecksumTest = pageChecksum($tBuffer, 1, $iPageSize);
+    my $iPageChecksumBlockNo = 0x1B9A;
+
+    ok (
+        $iPageChecksumTest == $iPageChecksumBlockNo,
+        'page checksum test (' . sprintf('%X', $iPageChecksumTest) .
+        ') == page checksum blockno (' . sprintf('%X', $iPageChecksumBlockNo) . ')');
 
     # Now munge the block and make sure the checksum changes
     $iPageChecksumTest = pageChecksum(pack('I', 1024) . substr($tBuffer, 4), 0, $iPageSize);
