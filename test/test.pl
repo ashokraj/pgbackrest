@@ -46,8 +46,7 @@ use pgBackRest::Factorial qw(factorial_iterative_c);
 # make
 # sudo make install
 
-# confess "FACT 3:" . factorial_iterative_c(3) . "\n";
-# confess "EXIT";
+confess "FACT 3:" . factorial_iterative_c(3) . "\n";
 
 use BackRestDoc::Custom::DocCustomRelease;
 
