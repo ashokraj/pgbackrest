@@ -1,4 +1,4 @@
-package pgBackRest::Factorial;
+package pgBackRest::LibC;
 
 use 5.010001;
 use strict;
@@ -21,6 +21,6 @@ our @EXPORT_OK = (@{$EXPORT_TAGS{'all'}});
 our $VERSION = '1.00';
 
 require XSLoader;
-XSLoader::load('pgBackRest::Factorial', $VERSION);
+XSLoader::load('pgBackRest::LibC', $VERSION);
 
 1;

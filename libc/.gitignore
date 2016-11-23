@@ -1,7 +1,6 @@
 Makefile.old
 Makefile
 MYMETA.*
-Factorial.*
 *.o
 pm_to_blib
 blib

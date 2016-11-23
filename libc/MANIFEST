@@ -1,8 +1,8 @@
 Changes
-Factorial.xs
+LibC.xs
 Makefile.PL
 MANIFEST
 ppport.h
 README
-t/pgBackRest-Factorial.t
-lib/pgBackRest/Factorial.pm
+t/pgBackRest-LibC.t
+lib/pgBackRest/LibC.pm

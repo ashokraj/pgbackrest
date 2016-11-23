@@ -35,13 +35,15 @@ use pgBackRest::DbVersion;
 use pgBackRest::FileCommon;
 use pgBackRest::Version;
 
-use pgBackRest::Factorial qw(factorial_iterative_c);
+use lib dirname($0) . '/../libc/lib';
+use lib dirname($0) . '/../libc/blib/arch';
+use pgBackRest::LibC qw(factorial_iterative_c);
 
-# rm -rf pgBackRest-Factorial
-# h2xs -Afn pgBackRest::Factorial
-# h2xs -AOxan pgBackRest::Factorial factorial.h
-# cp factorial.* pgBackRest-Factorial
-# cd pgBackRest-Factorial
+# rm -rf pgBackRest-LibC
+# h2xs -Afn pgBackRest::LibC
+# h2xs -AOxan pgBackRest::LibC factorial.h
+# cp factorial.* pgBackRest-LibC
+# cd pgBackRest-LibC
 # perl Makefile.PL
 # make
 # sudo make install
