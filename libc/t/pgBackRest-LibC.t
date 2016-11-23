@@ -17,7 +17,7 @@ BEGIN {use_ok('pgBackRest::LibC')};
 ok (UVSIZE == 8, 'UVSIZE == 8');
 
 # Read a block with a valid checksum to test checksum functionality
-use pgBackRest::LibC qw(pg_checksum_page);
+use pgBackRest::LibC qw(pageChecksum);
 
 {
     my $strPageFile = 't/data/page.bin';
@@ -34,7 +34,7 @@ use pgBackRest::LibC qw(pg_checksum_page);
     close ($hFile);
 
     # Test the checksum
-    my $iPageChecksumTest = pg_checksum_page($tBuffer, 0, $iPageSize);
+    my $iPageChecksumTest = pageChecksum($tBuffer, 0, $iPageSize);
 
     ok (
         $iPageChecksumTest == $iPageChecksum,
@@ -42,7 +42,7 @@ use pgBackRest::LibC qw(pg_checksum_page);
         ') == page checksum (' . sprintf('%X', $iPageChecksum) . ')');
 
     # Now munge the block and make sure the checksum changes
-    my $iPageChecksumTest = pg_checksum_page(pack('I', 1024) . substr($tBuffer, 4), 0, $iPageSize);
+    $iPageChecksumTest = pageChecksum(pack('I', 1024) . substr($tBuffer, 4), 0, $iPageSize);
     my $iPageChecksumMunge = 0xFCFF;
 
     ok (

@@ -161,7 +161,7 @@ pg_checksum_block(char *data, uint32 size)
 }
 
 /***********************************************************************************************************************************
-pg_checksum_page
+pageChecksum
 
 Compute the checksum for a Postgres page.  The page must be aligned on a 4-byte boundary.
 
@@ -169,7 +169,7 @@ The checksum includes the block number (to detect the case where a page is someh
 (excluding the checksum itself), and the page data.
 ***********************************************************************************************************************************/
 uint16
-pg_checksum_page(char *page, BlockNumber blkno, uint32 pageSize)
+pageChecksum(char *page, BlockNumber blkno, uint32 pageSize)
 {
     PageHeader phdr = (PageHeader) page;
     uint16 save_checksum;

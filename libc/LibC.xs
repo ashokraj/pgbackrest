@@ -25,7 +25,7 @@ returnMagic2(x)
     UV x
 
 U16
-pg_checksum_page(page, blkno, pageSize)
+pageChecksum(page, blkno, pageSize)
     char * page
     U32 blkno
     U32 pageSize
