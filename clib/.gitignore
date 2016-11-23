@@ -1,6 +1,8 @@
-Makefile*
+Makefile.old
+Makefile
 MYMETA.*
-Factorial.*
+Factorial.o
+Factorial.xs
 *.o
 pm_to_blib
 blib
