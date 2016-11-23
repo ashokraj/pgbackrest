@@ -20,10 +20,11 @@ our @ISA = qw(Exporter);
 our %EXPORT_TAGS = ( 'all' => [ qw(
     returnMagic returnMagic2
     pageChecksum
+    pageChecksumBuffer
 	UVSIZE
 ) ] );
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+our @EXPORT_OK = (@{ $EXPORT_TAGS{'all'}});
 
 our @EXPORT = qw(
 	UVSIZE

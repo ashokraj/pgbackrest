@@ -192,3 +192,37 @@ pageChecksum(char *page, BlockNumber blkno, uint32 pageSize)
     // good idea.
     return (checksum % 65535) + 1;
 }
+
+/***********************************************************************************************************************************
+pageChecksumBuffer
+
+Test checksums for all pages in a buffer.
+***********************************************************************************************************************************/
+bool
+pageChecksumBuffer(char *szPageBuffer, uint32 bufferSize, BlockNumber blockNoStart, uint32 pageSize)
+{
+    // If the buffer does not represent an even number of blocks then error
+    if (bufferSize % pageSize != 0)
+    {
+        return false;
+    }
+
+    // Loop through all pages
+    for (int32 iIndex = 0; iIndex < bufferSize / pageSize; iIndex++)
+    {
+        char *szPage = szPageBuffer + (iIndex * pageSize);
+
+        // Get the actual checksum from the page
+        PageHeader pxPageHeader = (PageHeader) szPage;
+        uint16 usActualChecksum = pxPageHeader->pd_checksum;
+
+        // Get the calculated checksum from the page
+        uint16 usTestChecksum = pageChecksum(szPage, blockNoStart + iIndex, pageSize);
+
+        // Error if the checksums do not match
+        if (usActualChecksum != usTestChecksum)
+            return false;
+    }
+
+    return true;
+}

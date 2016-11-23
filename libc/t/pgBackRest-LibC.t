@@ -8,7 +8,7 @@ use Carp;
 use Fcntl qw(O_RDONLY);
 
 # Set number of tests
-use Test::More tests => 5;
+use Test::More tests => 8;
 
 # Make sure the module loads without errors
 BEGIN {use_ok('pgBackRest::LibC')};
@@ -18,7 +18,7 @@ ok (UVSIZE == 8, 'UVSIZE == 8');
 
 # Read a block with a valid checksum to test checksum functionality
 require pgBackRest::LibC;
-pgBackRest::LibC->import(qw(pageChecksum));
+pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
 
 {
     my $strPageFile = 't/data/page.bin';
@@ -44,7 +44,7 @@ pgBackRest::LibC->import(qw(pageChecksum));
 
     # Test the checksum on a different block no
     $iPageChecksumTest = pageChecksum($tBuffer, 1, $iPageSize);
-    my $iPageChecksumBlockNo = 0x1B9A;
+    my $iPageChecksumBlockNo = $iPageChecksum + 1;
 
     ok (
         $iPageChecksumTest == $iPageChecksumBlockNo,
@@ -59,4 +59,22 @@ pgBackRest::LibC->import(qw(pageChecksum));
         $iPageChecksumTest == $iPageChecksumMunge,
         'page checksum test (' . sprintf('%X', $iPageChecksumTest) .
         ') == page checksum munge (' . sprintf('%X', $iPageChecksumMunge) . ')');
+
+    # Pass a valid page buffer
+    my $tBufferMulti =
+        $tBuffer .
+        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum + 1) . substr($tBuffer, 10) .
+        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum - 2) . substr($tBuffer, 10) .
+        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum - 1) . substr($tBuffer, 10);
+
+    ok (pageChecksumBuffer($tBufferMulti, $iPageSize * 4, 0, $iPageSize), 'pass valid page buffer');
+
+    # Reject an invalid page buffer
+    $tBufferMulti =
+        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum + 1) . substr($tBuffer, 10);
+
+    ok (!pageChecksumBuffer($tBufferMulti, $iPageSize, 0, $iPageSize), 'reject invalid page buffer');
+
+    # Reject an misaligned page buffer
+    ok (!pageChecksumBuffer(substr($tBuffer, 1), $iPageSize, 0, $iPageSize), 'reject misaligned page buffer');
 }

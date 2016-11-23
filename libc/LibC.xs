@@ -29,3 +29,10 @@ pageChecksum(page, blkno, pageSize)
     char * page
     U32 blkno
     U32 pageSize
+
+bool
+pageChecksumBuffer(szPageBuffer, bufferSize, blockNoStart, pageSize)
+    char *szPageBuffer
+    U32 bufferSize
+    U32 blockNoStart
+    U32 pageSize

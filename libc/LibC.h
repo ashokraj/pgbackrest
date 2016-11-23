@@ -33,6 +33,7 @@ uint16 returnMagic(uint16 x);
 uint64 returnMagic2(uint64 x);
 
 uint16 pageChecksum(char *page, uint32 blkno, uint32 pageSize);
+bool pageChecksumBuffer(char *szPageBuffer, uint32 bufferSize, BlockNumber blockNoStart, uint32 pageSize);
 
 // !!! TEST STUFF
 #define DUDEMAN 69
