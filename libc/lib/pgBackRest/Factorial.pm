@@ -1,6 +1,6 @@
 package pgBackRest::Factorial;
 
-use 5.022001;
+use 5.010001;
 use strict;
 use warnings;
 
@@ -23,7 +23,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	
+
 );
 
 our $VERSION = '0.01';
