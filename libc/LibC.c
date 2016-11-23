@@ -10,6 +10,7 @@
 #define PERL_NO_GET_CONTEXT
 
 #include <factorial.h>
+#include "const-c.inc"
 
 /*
  * The following C types are mapped by the current typemap:
@@ -20,7 +21,7 @@
  * 'unsigned short', 'void *', 'wchar_t', 'wchar_t *'
  */
 
-#line 24 "LibC.c"
+#line 25 "LibC.c"
 #ifndef PERL_UNUSED_VAR
 #  define PERL_UNUSED_VAR(var) if (0) var = var
 #endif
@@ -164,7 +165,118 @@ S_croak_xs_usage(const CV *const cv, const char *const params)
 #  define newXS_deffile(a,b) Perl_newXS_deffile(aTHX_ a,b)
 #endif
 
-#line 168 "LibC.c"
+#line 169 "LibC.c"
+
+/* INCLUDE:  Including 'const-xs.inc' from 'LibC.xs' */
+
+
+XS_EUPXS(XS_pgBackRest__LibC_constant); /* prototype to pass -Wmissing-prototypes */
+XS_EUPXS(XS_pgBackRest__LibC_constant)
+{
+    dVAR; dXSARGS;
+    if (items != 1)
+       croak_xs_usage(cv,  "sv");
+    PERL_UNUSED_VAR(ax); /* -Wall */
+    SP -= items;
+    {
+#line 4 "./const-xs.inc"
+#ifdef dXSTARG
+	dXSTARG; /* Faster if we have it.  */
+#else
+	dTARGET;
+#endif
+	STRLEN		len;
+        int		type;
+	IV		iv;
+	/* NV		nv;	Uncomment this if you need to return NVs */
+	/* const char	*pv;	Uncomment this if you need to return PVs */
+#line 194 "LibC.c"
+	SV *	sv = ST(0)
+;
+	const char *	s = SvPV(sv, len);
+#line 18 "./const-xs.inc"
+        /* Change this to constant(aTHX_ s, len, &iv, &nv);
+           if you need to return both NVs and IVs */
+	type = constant(aTHX_ s, len, &iv);
+      /* Return 1 or 2 items. First is error message, or undef if no error.
+           Second, if present, is found value */
+        switch (type) {
+        case PERL_constant_NOTFOUND:
+          sv =
+	    sv_2mortal(newSVpvf("%s is not a valid pgBackRest::LibC macro", s));
+          PUSHs(sv);
+          break;
+        case PERL_constant_NOTDEF:
+          sv = sv_2mortal(newSVpvf(
+	    "Your vendor has not defined pgBackRest::LibC macro %s, used",
+				   s));
+          PUSHs(sv);
+          break;
+        case PERL_constant_ISIV:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHi(iv);
+          break;
+	/* Uncomment this if you need to return NOs
+        case PERL_constant_ISNO:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHs(&PL_sv_no);
+          break; */
+	/* Uncomment this if you need to return NVs
+        case PERL_constant_ISNV:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHn(nv);
+          break; */
+	/* Uncomment this if you need to return PVs
+        case PERL_constant_ISPV:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHp(pv, strlen(pv));
+          break; */
+	/* Uncomment this if you need to return PVNs
+        case PERL_constant_ISPVN:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHp(pv, iv);
+          break; */
+	/* Uncomment this if you need to return SVs
+        case PERL_constant_ISSV:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHs(sv);
+          break; */
+	/* Uncomment this if you need to return UNDEFs
+        case PERL_constant_ISUNDEF:
+          break; */
+	/* Uncomment this if you need to return UVs
+        case PERL_constant_ISUV:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHu((UV)iv);
+          break; */
+	/* Uncomment this if you need to return YESs
+        case PERL_constant_ISYES:
+          EXTEND(SP, 1);
+          PUSHs(&PL_sv_undef);
+          PUSHs(&PL_sv_yes);
+          break; */
+        default:
+          sv = sv_2mortal(newSVpvf(
+	    "Unexpected return type %d while processing pgBackRest::LibC macro %s, used",
+               type, s));
+          PUSHs(sv);
+        }
+#line 272 "LibC.c"
+	PUTBACK;
+	return;
+    }
+}
+
+
+/* INCLUDE: Returning to 'LibC.xs' from 'const-xs.inc' */
+
 
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c); /* prototype to pass -Wmissing-prototypes */
 XS_EUPXS(XS_pgBackRest__LibC_factorial_iterative_c)
@@ -269,6 +381,7 @@ XS_EXTERNAL(boot_pgBackRest__LibC)
 #  endif
 #endif
 
+        newXS_deffile("pgBackRest::LibC::constant", XS_pgBackRest__LibC_constant);
         newXS_deffile("pgBackRest::LibC::factorial_iterative_c", XS_pgBackRest__LibC_factorial_iterative_c);
         newXS_deffile("pgBackRest::LibC::factorial_recursive_c", XS_pgBackRest__LibC_factorial_recursive_c);
         newXS_deffile("pgBackRest::LibC::returnMagic", XS_pgBackRest__LibC_returnMagic);

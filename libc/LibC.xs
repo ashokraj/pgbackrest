@@ -1,6 +1,7 @@
 #define PERL_NO_GET_CONTEXT
 
 #include <factorial.h>
+#include "const-c.inc"
 
 /*
  * The following C types are mapped by the current typemap:
@@ -12,6 +13,8 @@
  */
 
 MODULE = pgBackRest::LibC    PACKAGE = pgBackRest::LibC
+
+INCLUDE: const-xs.inc
 
 double
 factorial_iterative_c(x)

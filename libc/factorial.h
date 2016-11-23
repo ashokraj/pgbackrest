@@ -13,10 +13,19 @@ typedef I16 int16;     /* == 16 bits */
 typedef I32 int32;     /* == 32 bits */
 typedef IV int64;      /* == 64 bits */
 
-#define UINT64SIZE UVSIZE
-
 double factorial_recursive_c(int x);
 double factorial_iterative_c(int x);
+
+#define UINT64SIZE 8
+#define DUDEMAN 69
+#define DUDESTRING "It's a String"
+
+typedef enum ScanDirection
+{
+	BackwardScanDirection = -1,
+	NoMovementScanDirection = 0,
+	ForwardScanDirection = 1
+} ScanDirection;
 
 uint16 returnMagic(uint16 x);
 uint64 returnMagic2(uint64 x);
