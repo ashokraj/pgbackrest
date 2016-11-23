@@ -159,11 +159,11 @@ pg_checksum_block(char *data, uint32 size)
 		for (j = 0; j < N_SUMS; j++)
 			CHECKSUM_COMP(sums[j], 0);
 
-	/* xor fold partial checksums together */
-	for (i = 0; i < N_SUMS; i++)
-		result ^= sums[i];
+    // xor fold partial checksums together
+    for (i = 0; i < N_SUMS; i++)
+        result ^= sums[i];
 
-	return result;
+    return result;
 }
 
 /***********************************************************************************************************************************
