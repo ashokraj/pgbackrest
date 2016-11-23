@@ -4,3 +4,5 @@ MYMETA.*
 *.o
 pm_to_blib
 blib
+const-c.inc
+cons-xs.inc
