@@ -32,7 +32,7 @@ ok (&UVSIZE == 8, 'UVSIZE == 8');
         or confess "unable to open ${strPageFile}";
 
     sysread($hFile, my $tBuffer, $iPageSize) == $iPageSize
-        or confess "unable to reead 8192 bytes from ${strPageFile}";
+        or confess "unable to read 8192 bytes from ${strPageFile}";
 
     close ($hFile);
 

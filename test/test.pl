@@ -35,14 +35,6 @@ use pgBackRest::DbVersion;
 use pgBackRest::FileCommon;
 use pgBackRest::Version;
 
-# use lib dirname($0) . '/../libc/lib';
-# use lib dirname($0) . '/../libc/lib/auto';
-# use lib dirname($0) . '/../libc/blib/arch';
-use pgBackRest::LibC qw(UVSIZE);
-
-print "\nUVSIZE:" . UVSIZE . "\n";
-exit;
-
 use BackRestDoc::Custom::DocCustomRelease;
 
 use pgBackRestTest::Backup::BackupTest;
@@ -81,6 +73,7 @@ test.pl [options]
    --db-version         version of postgres to test (all, defaults to minimal)
    --log-force          force overwrite of current test log files
    --no-lint            Disable static source code analysis
+   --libc-only          Compile the C library and run tests only
 
  Configuration Options:
    --psql-bin           path to the psql executables (e.g. /usr/lib/postgresql/9.3/bin/)
@@ -124,6 +117,7 @@ my $strVm = 'all';
 my $bVmBuild = false;
 my $bVmForce = false;
 my $bNoLint = false;
+my $bLibCOnly = false;
 
 GetOptions ('q|quiet' => \$bQuiet,
             'version' => \$bVersion,
@@ -145,9 +139,9 @@ GetOptions ('q|quiet' => \$bQuiet,
             'no-cleanup' => \$bNoCleanup,
             'db-version=s' => \$strDbVersion,
             'log-force' => \$bLogForce,
-            'no-lint' => \$bNoLint)
+            'no-lint' => \$bNoLint,
+            'libc-only' => \$bLibCOnly)
     or pod2usage(2);
-
 
 ####################################################################################################################################
 # Run in eval block to catch errors
@@ -251,7 +245,7 @@ eval
         if (!$bDryRun)
         {
             # Run Perl critic
-            if (!$bNoLint)
+            if (!$bNoLint && !$bLibCOnly)
             {
                 my $strBasePath = dirname(dirname(abs_path($0)));
 
@@ -276,6 +270,37 @@ eval
             }
 
             logFileSet(cwd() . "/test");
+        }
+
+        # Build the C Library
+        #-----------------------------------------------------------------------------------------------------------------------
+        {
+            &log(INFO, "Build/test/install the C library in host VM");
+            my $bLogDetail = $strLogLevel eq 'detail';
+            my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/host";
+
+            filePathCreate($strBuildPath, undef, true, true);
+            executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
+
+            executeTest(
+                "cd ${strBuildPath} && perl Makefile.PL INSTALLMAN1DIR=none INSTALLMAN3DIR=none",
+                {bShowOutputAsync => $bLogDetail});
+            executeTest("make -C ${strBuildPath}", {bSuppressStdErr => true, bShowOutputAsync => $bLogDetail});
+            executeTest("sudo make -C ${strBuildPath} install", {bShowOutputAsync => $bLogDetail});
+            executeTest("cd ${strBuildPath} && perl t/pgBackRest-LibC.t", {bShowOutputAsync => $bLogDetail});
+
+            # Load the module dynamically
+            require pgBackRest::LibC;
+            pgBackRest::LibC->import(qw(:debug :checksum));
+
+            # Do a basic test to make sure it installed correctly
+            if (&UVSIZE != 8)
+            {
+                confess &log(ERROR, 'UVSIZE in C library does not equal 8');
+            }
+
+            # Exit if only testing the C library
+            exit 0 if $bLibCOnly;
         }
 
         # Determine which tests to run
