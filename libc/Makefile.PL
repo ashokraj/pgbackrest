@@ -15,7 +15,7 @@ WriteMakefile
     LIBS              => [''], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I.', # e.g., '-I. -I/usr/include/other'
-    OBJECT            => 'LibC.o page_checksum.o', # link all C files
+    OBJECT            => 'LibC.o pageChecksum.o', # link all C files
 );
 
 if  (eval {require ExtUtils::Constant; 1})
