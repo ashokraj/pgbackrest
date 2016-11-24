@@ -282,7 +282,7 @@ eval
             &log(INFO, "Build/test/install C library for host (${strBuildPath})");
 
             filePathCreate($strBuildPath, undef, true, true);
-            executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
+            executeTest("cp -rp ${strBackRestBase}/libc/* ${strBuildPath}");
 
             executeTest(
                 "cd ${strBuildPath} && perl Makefile.PL INSTALLMAN1DIR=none INSTALLMAN3DIR=none",
@@ -355,7 +355,7 @@ eval
                 &log(INFO, "Build/test C library for ${strBuildVM} (${strBuildPath})");
 
                 filePathCreate($strBuildPath, undef, true, true);
-                executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
+                executeTest("cp -rp ${strBackRestBase}/libc/* ${strBuildPath}");
 
                 executeTest(
                     "docker exec -i test-build " .
