@@ -169,14 +169,11 @@ The checksum includes the block number (to detect the case where a page is someh
 (excluding the checksum itself), and the page data.
 ***********************************************************************************************************************************/
 uint16
-pageChecksum(char *page, BlockNumber blkno, uint32 pageSize)
+pageChecksum(char *page, uint32 blkno, uint32 pageSize)
 {
     PageHeader phdr = (PageHeader) page;
     uint16 save_checksum;
     uint32 checksum;
-
-    // We only calculate the checksum for properly-initialized pages
-    // Assert(!PageIsNew(page));
 
     // Save pd_checksum and temporarily set it to zero, so that the checksum calculation isn't affected by the old checksum stored
     // on the page. Restore it after, because actually updating the checksum is NOT part of the API of this function.
@@ -199,25 +196,25 @@ pageChecksumBuffer
 Test checksums for all pages in a buffer.
 ***********************************************************************************************************************************/
 bool
-pageChecksumBuffer(char *szPageBuffer, uint32 bufferSize, BlockNumber blockNoStart, uint32 pageSize)
+pageChecksumBuffer(char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStart, uint32 uiPageSize)
 {
     // If the buffer does not represent an even number of pages then error
-    if (bufferSize % pageSize != 0)
+    if (uiBufferSize % uiPageSize != 0)
     {
-        croak("buffer %u, page %u are not divisible", bufferSize, pageSize);
+        croak("buffer size %u, page size %u are not divisible", uiBufferSize, uiPageSize);
     }
 
     // Loop through all pages in the buffer
-    for (int32 iIndex = 0; iIndex < bufferSize / pageSize; iIndex++)
+    for (uint32 uiIndex = 0; uiIndex < uiBufferSize / uiPageSize; uiIndex++)
     {
-        char *szPage = szPageBuffer + (iIndex * pageSize);
+        char *szPage = szPageBuffer + (uiIndex * uiPageSize);
 
         // Get the actual checksum from the page
         PageHeader pxPageHeader = (PageHeader) szPage;
         uint16 usActualChecksum = pxPageHeader->pd_checksum;
 
         // Get the calculated checksum from the page
-        uint16 usTestChecksum = pageChecksum(szPage, blockNoStart + iIndex, pageSize);
+        uint16 usTestChecksum = pageChecksum(szPage, uiBlockNoStart + uiIndex, uiPageSize);
 
         // Error if the checksums do not match
         if (usActualChecksum != usTestChecksum)

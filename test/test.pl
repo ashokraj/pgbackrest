@@ -36,21 +36,11 @@ use pgBackRest::FileCommon;
 use pgBackRest::Version;
 
 # use lib dirname($0) . '/../libc/lib';
-# # use lib dirname($0) . '/../libc/lib/auto';
+# use lib dirname($0) . '/../libc/lib/auto';
 # use lib dirname($0) . '/../libc/blib/arch';
-use pgBackRest::LibC qw(returnMagic returnMagic2 UVSIZE);
-
-# rm -rf pgBackRest-LibC
-# h2xs -Afn pgBackRest::LibC
-# h2xs -AOxan pgBackRest::LibC factorial.h
-# cp factorial.* pgBackRest-LibC
-# cd pgBackRest-LibC
-# perl Makefile.PL
-# make
-# sudo make install
+use pgBackRest::LibC qw(UVSIZE);
 
 print "\nUVSIZE:" . UVSIZE . "\n";
-print "\nMagic 1000:" . returnMagic2(1) . "\n";
 exit;
 
 use BackRestDoc::Custom::DocCustomRelease;

@@ -17,14 +17,6 @@ MODULE = pgBackRest::LibC    PACKAGE = pgBackRest::LibC
 INCLUDE: const-xs.inc
 
 U16
-returnMagic(x)
-    U16 x
-
-UV
-returnMagic2(x)
-    UV x
-
-U16
 pageChecksum(page, blkno, pageSize)
     char * page
     U32 blkno
