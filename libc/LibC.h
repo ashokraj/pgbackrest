@@ -20,6 +20,7 @@ typedef IV int64;      /* == 64 bits */
 Checksum functions
 ***********************************************************************************************************************************/
 uint16 pageChecksum(char *page, uint32 blkno, uint32 pageSize);
+bool pageChecksumTest(char *szPage, uint32 uiBlockNo, uint32 uiPageSize);
 bool pageChecksumBuffer(char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStart, uint32 uiPageSize);
 
 // !!! TEST STUFF

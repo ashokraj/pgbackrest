@@ -9,18 +9,19 @@ use English '-no_match_vars';
 use Fcntl qw(O_RDONLY);
 
 # Set number of tests
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 # Make sure the module loads without errors
 BEGIN {use_ok('pgBackRest::LibC')};
 
-# UVSIZE determines the pointer and long long int size.  This needs to be 8 to indicate 64-bit types are available.
-ok (UVSIZE == 8, 'UVSIZE == 8');
-
-# Read a block with a valid checksum to test checksum functionality
+# Load the module dynamically so it does not interfere with the test above
 require pgBackRest::LibC;
-pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
+pgBackRest::LibC->import(qw(:debug :checksum));
 
+# UVSIZE determines the pointer and long long int size.  This needs to be 8 to indicate 64-bit types are available.
+ok (&UVSIZE == 8, 'UVSIZE == 8');
+
+# Test page-level checksums
 {
     my $strPageFile = 't/data/page.bin';
     my $iPageSize = 8192;
@@ -70,10 +71,27 @@ pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
 
     ok (pageChecksumBuffer($tBufferMulti, $iPageSize * 4, 0, $iPageSize), 'pass valid page buffer');
 
-    # Reject an invalid page buffer
-    $tBufferMulti = $tBuffer . $tBuffer;
+    # Reject an invalid page buffer (second block will error because he checksum will not contain the correct block no)
+    $tBufferMulti =
+        $tBuffer .
+        $tBuffer .
+        substr($tBuffer, 0, 8) . pack('S', $iPageChecksum - 2) . substr($tBuffer, 10);
 
     ok (!pageChecksumBuffer($tBufferMulti, length($tBufferMulti), 0, $iPageSize), 'reject invalid page buffer');
+
+    # Find the rejected page in the buffer
+    my $iRejectedBlockNo = -1;
+    my $iExpectedBlockNo = 1;
+
+    for (my $iIndex = 0; $iIndex < length($tBufferMulti) / $iPageSize; $iIndex++)
+    {
+        if (!pageChecksumTest(substr($tBufferMulti, $iIndex * $iPageSize, $iPageSize), $iIndex, $iPageSize))
+        {
+            $iRejectedBlockNo = $iIndex;
+        }
+    }
+
+    ok ($iRejectedBlockNo == $iExpectedBlockNo, "rejected blockno ${iRejectedBlockNo} equals expected ${iExpectedBlockNo}");
 
     # Reject an misaligned page buffer
     $tBufferMulti = $tBuffer . substr($tBuffer, 1);

@@ -23,8 +23,14 @@ pageChecksum(page, blkno, pageSize)
     U32 pageSize
 
 bool
-pageChecksumBuffer(szPageBuffer, bufferSize, blockNoStart, pageSize)
-    char *szPageBuffer
+pageChecksumTest(page, blockNo, pageSize)
+    char *page
+    U32 blockNo
+    U32 pageSize
+
+bool
+pageChecksumBuffer(pageBuffer, bufferSize, blockNoStart, pageSize)
+    char *pageBuffer
     U32 bufferSize
     U32 blockNoStart
     U32 pageSize

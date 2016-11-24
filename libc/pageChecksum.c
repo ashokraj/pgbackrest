@@ -191,6 +191,24 @@ pageChecksum(char *page, uint32 blkno, uint32 pageSize)
 }
 
 /***********************************************************************************************************************************
+pageChecksumTest
+
+Test checksums for a single page.
+***********************************************************************************************************************************/
+bool
+pageChecksumTest(char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
+{
+    // Get the actual checksum from the page
+    uint16 usActualChecksum = ((PageHeader)szPage)->pd_checksum;
+
+    // Get the calculated checksum from the page
+    uint16 usTestChecksum = pageChecksum(szPage, uiBlockNo, uiPageSize);
+
+    // Return match
+    return usActualChecksum == usTestChecksum;
+}
+
+/***********************************************************************************************************************************
 pageChecksumBuffer
 
 Test checksums for all pages in a buffer.
@@ -209,17 +227,11 @@ pageChecksumBuffer(char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStar
     {
         char *szPage = szPageBuffer + (uiIndex * uiPageSize);
 
-        // Get the actual checksum from the page
-        PageHeader pxPageHeader = (PageHeader) szPage;
-        uint16 usActualChecksum = pxPageHeader->pd_checksum;
-
-        // Get the calculated checksum from the page
-        uint16 usTestChecksum = pageChecksum(szPage, uiBlockNoStart + uiIndex, uiPageSize);
-
-        // Error if the checksums do not match
-        if (usActualChecksum != usTestChecksum)
+        // Return false if the checksums do not match
+        if (((PageHeader)szPage)->pd_checksum != pageChecksum(szPage, uiBlockNoStart + uiIndex, uiPageSize))
             return false;
     }
 
+    // All checksums match
     return true;
 }
