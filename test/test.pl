@@ -46,6 +46,7 @@ use pgBackRestTest::Common::ContainerTest;
 use pgBackRestTest::Common::ExecuteTest;
 use pgBackRestTest::Common::HostGroupTest;
 use pgBackRestTest::Common::ListTest;
+use pgBackRestTest::Common::VmTest;
 use pgBackRestTest::CommonTest;
 use pgBackRestTest::Config::ConfigTest;
 use pgBackRestTest::File::FileTest;
@@ -341,35 +342,36 @@ eval
         # Build the C Library in container
         #-----------------------------------------------------------------------------------------------------------------------
         {
-            my $strBuildVM = $strVm;
+            my $bLogDetail = $strLogLevel eq 'detail';
+            my @stryBuildVm = $strVm eq 'all' ? (VM_CO6, VM_U16, VM_D8, VM_CO7, VM_U14, VM_U12) : ($strVm);
 
-            executeTest(
-                "docker run -itd -h test-build --name=test-build" .
-                " -v ${strBackRestBase}:${strBackRestBase} " . containerNamespace() . "/${strBuildVM}-build");
+            foreach my $strBuildVM (sort(@stryBuildVm))
+            {
+                executeTest(
+                    "docker run -itd -h test-build --name=test-build" .
+                    " -v ${strBackRestBase}:${strBackRestBase} " . containerNamespace() . "/${strBuildVM}-build");
 
-            my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/${strBuildVM}";
-            &log(INFO, "Build/test C library for ${strBuildVM} (${strBuildPath})");
+                my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/${strBuildVM}";
+                &log(INFO, "Build/test C library for ${strBuildVM} (${strBuildPath})");
 
-            filePathCreate($strBuildPath, undef, true, true);
-            executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
+                filePathCreate($strBuildPath, undef, true, true);
+                executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
 
-            executeTest(
-                "docker exec -i test-build " .
-                "bash -c 'cd ${strBuildPath} && perl Makefile.PL INSTALLMAN1DIR=none INSTALLMAN3DIR=none'");
-            executeTest(
-                "docker exec -i test-build " .
-                "make -C ${strBuildPath}", {bSuppressStdErr => true});
-            executeTest(
-                "docker exec -i test-build " .
-                "make -C ${strBuildPath} test");
-            executeTest(
-                "docker exec -i test-build " .
-                "make -C ${strBuildPath} install");
+                executeTest(
+                    "docker exec -i test-build " .
+                    "bash -c 'cd ${strBuildPath} && perl Makefile.PL INSTALLMAN1DIR=none INSTALLMAN3DIR=none'");
+                executeTest(
+                    "docker exec -i test-build " .
+                    "make -C ${strBuildPath}", {bSuppressStdErr => true});
+                executeTest(
+                    "docker exec -i test-build " .
+                    "make -C ${strBuildPath} test");
+                executeTest(
+                    "docker exec -i test-build " .
+                    "make -C ${strBuildPath} install", {bShowOutputAsync => $bLogDetail});
 
-            executeTest("docker rm -f test-build");
-
-            # !!! FOR TESTING
-            exit 0;
+                executeTest("docker rm -f test-build");
+            }
         }
 
         if ($bDryRun)
@@ -487,6 +489,19 @@ eval
                                 " -v ${strHostTestPath}:${strVmTestPath}" .
                                 " -v ${strBackRestBase}:${strBackRestBase} " . containerNamespace() . '/' . $$oTest{&TEST_VM} .
                                 "-loop-test-pre");
+
+                            # my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/" . $$oTest{&TEST_VM};
+                            # my $strPerlAutoPath = $$oTest{&TEST_PERL_ARCH_PATH} . '/auto/pgBackRest/LibC';
+                            # my $strPerlModulePath = $$oTest{&TEST_PERL_ARCH_PATH} . '/pgBackRest';
+                            #
+                            # executeTest(
+                            #     "docker exec -i ${strImage} bash -c '" .
+                            #     "mkdir -p -m 755 ${strPerlAutoPath} && " .
+                            #     "cp ${strBuildPath}/blib/arch/auto/pgBackRest/LibC/LibC.bs ${strPerlAutoPath} && " .
+                            #     "cp ${strBuildPath}/blib/arch/auto/pgBackRest/LibC/LibC.so ${strPerlAutoPath} && " .
+                            #     "cp ${strBuildPath}/blib/lib/auto/pgBackRest/LibC/autosplit.ix ${strPerlAutoPath} && " .
+                            #     "mkdir -p -m 755 ${strPerlModulePath} && " .
+                            #     "cp ${strBuildPath}/blib/lib/pgBackRest/LibC.pm ${strPerlModulePath}'");
                         }
                     }
 

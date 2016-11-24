@@ -19,6 +19,7 @@ use pgBackRest::Common::Log;
 use pgBackRest::Common::String;
 
 use pgBackRestTest::Common::ExecuteTest;
+use pgBackRestTest::Common::VmTest;
 
 ####################################################################################################################################
 # new
@@ -58,6 +59,22 @@ sub new
                 (defined($self->{stryMount}) ? ' -v ' . join(' -v ', @{$self->{stryMount}}) : '') .
                 " $self->{strImage}");
 
+    # Install Perl C Library
+    my $oVm = vmGet();
+    my $strBuildPath = "/backrest/test/.vagrant/libc/$self->{strOS}";
+    my $strPerlAutoPath = $$oVm{$self->{strOS}}{&VMDEF_PERL_ARCH_PATH} . '/auto/pgBackRest/LibC';
+    my $strPerlModulePath = $$oVm{$self->{strOS}}{&VMDEF_PERL_ARCH_PATH} . '/pgBackRest';
+
+    executeTest(
+        "docker exec -i $self->{strContainer} bash -c '" .
+        "mkdir -p -m 755 ${strPerlAutoPath} && " .
+        "cp ${strBuildPath}/blib/arch/auto/pgBackRest/LibC/LibC.bs ${strPerlAutoPath} && " .
+        "cp ${strBuildPath}/blib/arch/auto/pgBackRest/LibC/LibC.so ${strPerlAutoPath} && " .
+        "cp ${strBuildPath}/blib/lib/auto/pgBackRest/LibC/autosplit.ix ${strPerlAutoPath} && " .
+        "mkdir -p -m 755 ${strPerlModulePath} && " .
+        "cp ${strBuildPath}/blib/lib/pgBackRest/LibC.pm ${strPerlModulePath}'");
+
+    # Get IP Address
     $self->{strIP} = trim(executeTest("docker inspect --format '\{\{ .NetworkSettings.IPAddress \}\}' $self->{strContainer}"));
     $self->{bActive} = true;
 
