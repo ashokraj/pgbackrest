@@ -4,6 +4,7 @@
 use strict;
 use warnings;
 use Carp;
+use English '-no_match_vars';
 
 use Fcntl qw(O_RDONLY);
 
@@ -70,8 +71,27 @@ pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
     ok (pageChecksumBuffer($tBufferMulti, $iPageSize * 4, 0, $iPageSize), 'pass valid page buffer');
 
     # Reject an invalid page buffer
-    ok (!pageChecksumBuffer($tBuffer . $tBuffer, $iPageSize * 2, 0, $iPageSize), 'reject invalid page buffer');
+    $tBufferMulti = $tBuffer . $tBuffer;
+
+    ok (!pageChecksumBuffer($tBufferMulti, length($tBufferMulti), 0, $iPageSize), 'reject invalid page buffer');
 
     # Reject an misaligned page buffer
-    ok (!pageChecksumBuffer($tBuffer . substr($tBuffer, 1), $iPageSize * 2, 0, $iPageSize), 'reject misaligned page buffer');
+    $tBufferMulti = $tBuffer . substr($tBuffer, 1);
+    my $strException = 'an error should have occurred';
+    my $strTestException = 'buffer 16383, page 8192 are not divisible a';
+
+    eval
+    {
+        pageChecksumBuffer($tBufferMulti, length($tBufferMulti), 0, $iPageSize);
+        return 1;
+    }
+    or do
+    {
+        $strException = $EVAL_ERROR;
+    };
+
+    ok (
+        substr($strException, 0, length($strTestException)) eq $strTestException,
+        "raised exception '" . substr($strException, 0, length($strTestException)) .
+        "' equals expected exception '${strTestException}'");
 }

@@ -201,13 +201,13 @@ Test checksums for all pages in a buffer.
 bool
 pageChecksumBuffer(char *szPageBuffer, uint32 bufferSize, BlockNumber blockNoStart, uint32 pageSize)
 {
-    // If the buffer does not represent an even number of blocks then error
+    // If the buffer does not represent an even number of pages then error
     if (bufferSize % pageSize != 0)
     {
-        return false;
+        croak("buffer %d, page %d are not divisible", bufferSize, pageSize);
     }
 
-    // Loop through all pages
+    // Loop through all pages in the buffer
     for (int32 iIndex = 0; iIndex < bufferSize / pageSize; iIndex++)
     {
         char *szPage = szPageBuffer + (iIndex * pageSize);
