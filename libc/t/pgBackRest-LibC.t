@@ -77,21 +77,14 @@ pgBackRest::LibC->import(qw(pageChecksum pageChecksumBuffer));
 
     # Reject an misaligned page buffer
     $tBufferMulti = $tBuffer . substr($tBuffer, 1);
-    my $strException = 'an error should have occurred';
-    my $strTestException = 'buffer 16383, page 8192 are not divisible a';
 
     eval
     {
         pageChecksumBuffer($tBufferMulti, length($tBufferMulti), 0, $iPageSize);
-        return 1;
+        ok (0, 'misaligned test should have failed');
     }
     or do
     {
-        $strException = $EVAL_ERROR;
+        ok (1, 'misaligned test failed');
     };
-
-    ok (
-        substr($strException, 0, length($strTestException)) eq $strTestException,
-        "raised exception '" . substr($strException, 0, length($strTestException)) .
-        "' equals expected exception '${strTestException}'");
 }

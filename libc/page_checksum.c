@@ -204,7 +204,7 @@ pageChecksumBuffer(char *szPageBuffer, uint32 bufferSize, BlockNumber blockNoSta
     // If the buffer does not represent an even number of pages then error
     if (bufferSize % pageSize != 0)
     {
-        croak("buffer %d, page %d are not divisible", bufferSize, pageSize);
+        croak("buffer %u, page %u are not divisible", bufferSize, pageSize);
     }
 
     // Loop through all pages in the buffer
