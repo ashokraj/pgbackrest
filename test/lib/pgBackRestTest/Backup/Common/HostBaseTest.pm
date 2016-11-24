@@ -39,6 +39,8 @@ use constant HOST_BACKUP                                            => 'backup';
 ####################################################################################################################################
 # Host parameters
 ####################################################################################################################################
+use constant HOST_PARAM_BACKREST_EXE                                => 'backrest-exe';
+    push @EXPORT, qw(HOST_PARAM_BACKREST_EXE);
 use constant HOST_PARAM_VM_ID                                       => 'vm-id';
     push @EXPORT, qw(HOST_PARAM_VM_ID);
 use constant HOST_PARAM_TEST_PATH                                   => 'test-path';
@@ -89,7 +91,7 @@ sub new
 
     # Install Perl C Library
     my $oVm = vmGet();
-    my $strBuildPath = "/backrest/test/.vagrant/libc/$self->{strOS}";
+    my $strBuildPath = dirname(dirname($oHostGroup->paramGet(HOST_PARAM_BACKREST_EXE))) . "/test/.vagrant/libc/$self->{strOS}";
     my $strPerlAutoPath = $$oVm{$self->{strOS}}{&VMDEF_PERL_ARCH_PATH} . '/auto/pgBackRest/LibC';
     my $strPerlModulePath = $$oVm{$self->{strOS}}{&VMDEF_PERL_ARCH_PATH} . '/pgBackRest';
 

@@ -41,8 +41,6 @@ use constant HOST_BACKUP_USER                                       => 'backup-u
 ####################################################################################################################################
 use constant HOST_PARAM_BACKREST_CONFIG                             => 'backrest-config';
     push @EXPORT, qw(HOST_PARAM_BACKREST_CONFIG);
-use constant HOST_PARAM_BACKREST_EXE                                => 'backrest-exe';
-    push @EXPORT, qw(HOST_PARAM_BACKREST_EXE);
 use constant HOST_PARAM_LOCK_PATH                                   => 'lock-path';
     push @EXPORT, qw(HOST_PARAM_LOCK_PATH);
 use constant HOST_PARAM_LOG_PATH                                    => 'log-path';
