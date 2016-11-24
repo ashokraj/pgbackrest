@@ -272,12 +272,13 @@ eval
             logFileSet(cwd() . "/test");
         }
 
-        # Build the C Library
+        # Build the C Library in host
         #-----------------------------------------------------------------------------------------------------------------------
         {
-            &log(INFO, "Build/test/install the C library in host VM");
             my $bLogDetail = $strLogLevel eq 'detail';
             my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/host";
+
+            &log(INFO, "Build/test/install C library for host (${strBuildPath})");
 
             filePathCreate($strBuildPath, undef, true, true);
             executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
@@ -326,7 +327,7 @@ eval
 
         if (!$bDryRun || $bVmOut)
         {
-            containerRemove('test-[0-9]+');
+            containerRemove('test-([0-9]+|build)');
 
             for (my $iVmIdx = 0; $iVmIdx < 8; $iVmIdx++)
             {
@@ -335,6 +336,40 @@ eval
 
             executeTest("sudo rm -rf ${strTestPath}/*");
             filePathCreate($strTestPath);
+        }
+
+        # Build the C Library in container
+        #-----------------------------------------------------------------------------------------------------------------------
+        {
+            my $strBuildVM = $strVm;
+
+            executeTest(
+                "docker run -itd -h test-build --name=test-build" .
+                " -v ${strBackRestBase}:${strBackRestBase} " . containerNamespace() . "/${strBuildVM}-build");
+
+            my $strBuildPath = "${strBackRestBase}/test/.vagrant/libc/${strBuildVM}";
+            &log(INFO, "Build/test C library for ${strBuildVM} (${strBuildPath})");
+
+            filePathCreate($strBuildPath, undef, true, true);
+            executeTest("cp -rp ${strBackRestBase}/LibC/* ${strBuildPath}");
+
+            executeTest(
+                "docker exec -i test-build " .
+                "bash -c 'cd ${strBuildPath} && perl Makefile.PL INSTALLMAN1DIR=none INSTALLMAN3DIR=none'");
+            executeTest(
+                "docker exec -i test-build " .
+                "make -C ${strBuildPath}", {bSuppressStdErr => true});
+            executeTest(
+                "docker exec -i test-build " .
+                "make -C ${strBuildPath} test");
+            executeTest(
+                "docker exec -i test-build " .
+                "make -C ${strBuildPath} install");
+
+            executeTest("docker rm -f test-build");
+
+            # !!! FOR TESTING
+            exit 0;
         }
 
         if ($bDryRun)
