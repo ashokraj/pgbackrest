@@ -103,6 +103,7 @@ sub commandProcess
             $self->paramGet(OP_PARAM_REPO_FILE),
             $self->paramGet(OP_PARAM_DESTINATION_COMPRESS),
             $self->paramGet(OP_PARAM_CHECKSUM, false),
+            $self->paramGet(OP_PARAM_CHECKSUM_PAGE),
             $self->paramGet(OP_PARAM_MODIFICATION_TIME),
             $self->paramGet(OP_PARAM_SIZE),
             $self->paramGet(OP_PARAM_IGNORE_MISSING, false));

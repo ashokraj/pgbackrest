@@ -91,6 +91,8 @@ use constant OP_PARAM_BACKUP_PATH                                   => 'strBacku
     push @EXPORT, qw(OP_PARAM_BACKUP_PATH);
 use constant OP_PARAM_CHECKSUM                                      => 'strChecksum';
     push @EXPORT, qw(OP_PARAM_CHECKSUM);
+use constant OP_PARAM_CHECKSUM_PAGE                                 => 'bChecksumPage';
+    push @EXPORT, qw(OP_PARAM_CHECKSUM_PAGE);
 use constant OP_PARAM_COPY_TIME_START                               => 'lCopyTimeStart';
     push @EXPORT, qw(OP_PARAM_COPY_TIME_START);
 use constant OP_PARAM_DB_FILE                                       => 'strDbFile';

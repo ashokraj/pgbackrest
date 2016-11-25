@@ -138,7 +138,7 @@ sub queueBackup
             {name => &OP_PARAM_DESTINATION_COMPRESS},
             {name => &OP_PARAM_MODIFICATION_TIME},
             {name => &OP_PARAM_SIZE},
-            {name => 'bChecksumPage'},
+            {name => &OP_PARAM_CHECKSUM_PAGE},
             {name => &OP_PARAM_CHECKSUM, required => false},
             {name => &OP_PARAM_IGNORE_MISSING, required => false},
         );
@@ -152,7 +152,7 @@ sub queueBackup
             &OP_PARAM_REPO_FILE => $strRepoFile,
             &OP_PARAM_DESTINATION_COMPRESS => $bDestinationCompress,
             &OP_PARAM_CHECKSUM => $strChecksum,
-            'bChecksumPage' => $bChecksumPage,
+            &OP_PARAM_CHECKSUM_PAGE => $bChecksumPage,
             &OP_PARAM_MODIFICATION_TIME => $lModificationTime,
             &OP_PARAM_SIZE => $lSize,
             &OP_PARAM_IGNORE_MISSING => $bIgnoreMissing,

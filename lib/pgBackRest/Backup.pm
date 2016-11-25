@@ -427,7 +427,7 @@ sub processManifest
                     $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $hResult->{iHostConfigIdx}), false),
                     $hResult->{iProcessId}, $$hFile{strRepoFile}, $$hFile{strDbFile}, $$hResult{iCopyResult}, $$hFile{lSize},
                     $$hResult{lCopySize}, $$hResult{lRepoSize}, $lSizeTotal, $lSizeCurrent, $$hFile{strChecksum},
-                    $$hResult{strCopyChecksum}, $hFile->{bChecksumPage}, $hResult->{bChecksumPageValid},
+                    $$hResult{strCopyChecksum}, $hFile->{&OP_PARAM_CHECKSUM_PAGE}, $hResult->{bChecksumPageValid},
                     $lManifestSaveSize, $lManifestSaveCurrent);
             }
 
@@ -441,7 +441,7 @@ sub processManifest
         {
             my ($iCopyResult, $lCopySize, $lRepoSize, $strCopyChecksum) = backupFile(
                 $oFileMaster, $$hFileControl{db_file}, $$hFileControl{repo_file}, $bCompress, $$hFileControl{checksum},
-                $$hFileControl{modification_time}, $$hFileControl{size}, false);
+                false, $$hFileControl{modification_time}, $$hFileControl{size}, false);
 
             backupManifestUpdate(
                 $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $self->{iMasterRemoteIdx}), false), undef,

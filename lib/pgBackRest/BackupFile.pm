@@ -45,6 +45,7 @@ sub backupFile
         $strRepoFile,                               # Location in the repository to copy to
         $bDestinationCompress,                      # Compress destination file
         $strChecksum,                               # File checksum to be checked
+        $bChecksumPage,                             # Should page checksums be calculated?
         $lModificationTime,                         # File modification time
         $lSizeFile,                                 # File size
         $bIgnoreMissing,                            # Is it OK if the file is missing?
@@ -57,6 +58,7 @@ sub backupFile
             {name => OP_PARAM_REPO_FILE, trace => true},
             {name => OP_PARAM_DESTINATION_COMPRESS, trace => true},
             {name => OP_PARAM_CHECKSUM, required => false, trace => true},
+            {name => OP_PARAM_CHECKSUM_PAGE, trace => true},
             {name => OP_PARAM_MODIFICATION_TIME, trace => true},
             {name => OP_PARAM_SIZE, trace => true},
             {name => OP_PARAM_IGNORE_MISSING, default => true, trace => true},
