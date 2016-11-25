@@ -346,6 +346,7 @@ sub binaryXfer
     # Checksum and size
     my $strChecksum = undef;
     my $iFileSize = undef;
+    my $bPageChecksum = true;
 
     # Read from the protocol stream
     if ($strRemote eq 'in')
@@ -524,6 +525,14 @@ sub binaryXfer
                 # If block size > 0 then compress
                 if ($iBlockSize > 0)
                 {
+                    if ($bLibC && $bPageChecksum)
+                    {
+                        if ($iBlockSize % 8192 != 0 || !pageChecksumBuffer($tUncompressedBuffer, $iBlockSize, 0, 8192))
+                        {
+                            $bPageChecksum = false;
+                        }
+                    }
+
                     # Update checksum and filesize
                     $oSHA->add($tUncompressedBuffer);
 
@@ -691,7 +700,7 @@ sub binaryXfer
                 # Set protocol message
                 if ($bProtocol)
                 {
-                    $strMessage = "${strChecksum}-${iFileSize}";
+                    $strMessage = "${strChecksum}-${iFileSize}-${bPageChecksum}";
                 }
             }
 
@@ -710,10 +719,11 @@ sub binaryXfer
         my @stryToken = split(/-/, $strMessage);
         $strChecksum = $stryToken[0];
         $iFileSize = $stryToken[1];
+        $bPageChecksum = $stryToken[2];
     }
 
     # Return the checksum and size if they are available
-    return $strChecksum, $iFileSize;
+    return $strChecksum, $iFileSize, $bPageChecksum;
 }
 
 ####################################################################################################################################

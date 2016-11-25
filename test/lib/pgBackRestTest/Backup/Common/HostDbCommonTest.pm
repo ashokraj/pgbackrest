@@ -619,6 +619,21 @@ sub restoreCompare
                 delete(${$oExpectedManifestRef}{&MANIFEST_SECTION_TARGET_FILE}{$strName}{&MANIFEST_SUBKEY_CHECKSUM});
             }
         }
+
+        # # ??? Would be better if this check  was rolled into the same check from backupCompare or perhaps manifestValidate()
+        # if ($oActualManifest->test(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE) !=
+        #     isChecksumPage($strName))
+        # {
+        #     confess
+        #         "check-page actual for ${strName} is " .
+        #         ($oActualManifest->test(MANIFEST_SECTION_TARGET_FILE, $strName,
+        #             MANIFEST_SUBKEY_CHECKSUM_PAGE) ? 'set' : '[undef]') .
+        #         ' but isChecksumPage() says it should be ' .
+        #         (isChecksumPage($strName) ? 'set' : 'undef') . '.';
+        # }
+
+        # !!! TEMP
+        $oActualManifest->remove(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE);
     }
 
     # If the link section is empty then delete it and the default section

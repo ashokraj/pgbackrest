@@ -210,7 +210,7 @@ bool
 pageChecksumBuffer(const char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStart, uint32 uiPageSize)
 {
     // If the buffer does not represent an even number of pages then error
-    if (uiBufferSize % uiPageSize != 0)
+    if (uiBufferSize % uiPageSize != 0 || uiBufferSize / uiPageSize == 0)
     {
         croak("buffer size %u, page size %u are not divisible", uiBufferSize, uiPageSize);
     }

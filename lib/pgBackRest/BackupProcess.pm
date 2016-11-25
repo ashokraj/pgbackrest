@@ -66,6 +66,7 @@ sub cmdResult
         $hJob->{lCopySize} = (split("\t", $strResult))[1];
         $hJob->{lRepoSize} = (split("\t", $strResult))[2];
         $hJob->{strCopyChecksum} = (split("\t", $strResult))[3];
+        $hJob->{bChecksumPageValid} = (split("\t", $strResult))[4];
     }
 
     # Return from function and log return values if any
@@ -122,6 +123,7 @@ sub queueBackup
         $bDestinationCompress,
         $lModificationTime,
         $lSize,
+        $bChecksumPage,
         $strChecksum,
         $bIgnoreMissing,
     ) =
@@ -136,6 +138,7 @@ sub queueBackup
             {name => &OP_PARAM_DESTINATION_COMPRESS},
             {name => &OP_PARAM_MODIFICATION_TIME},
             {name => &OP_PARAM_SIZE},
+            {name => 'bChecksumPage'},
             {name => &OP_PARAM_CHECKSUM, required => false},
             {name => &OP_PARAM_IGNORE_MISSING, required => false},
         );
@@ -149,6 +152,7 @@ sub queueBackup
             &OP_PARAM_REPO_FILE => $strRepoFile,
             &OP_PARAM_DESTINATION_COMPRESS => $bDestinationCompress,
             &OP_PARAM_CHECKSUM => $strChecksum,
+            'bChecksumPage' => $bChecksumPage,
             &OP_PARAM_MODIFICATION_TIME => $lModificationTime,
             &OP_PARAM_SIZE => $lSize,
             &OP_PARAM_IGNORE_MISSING => $bIgnoreMissing,

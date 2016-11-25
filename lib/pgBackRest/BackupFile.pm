@@ -64,6 +64,7 @@ sub backupFile
 
     my $iCopyResult = BACKUP_FILE_COPY;             # Copy result
     my $strCopyChecksum;                            # Copy checksum
+    my $bPageChecksum;                              # Page checksum result
     my $lCopySize;                                  # Copy Size
     my $lRepoSize;                                  # Repo size
 
@@ -93,7 +94,7 @@ sub backupFile
     if ($bCopy)
     {
         # Copy the file from the database to the backup (will return false if the source file is missing)
-        (my $bCopyResult, $strCopyChecksum, $lCopySize) =
+        (my $bCopyResult, $strCopyChecksum, $lCopySize, $bPageChecksum) =
             $oFile->copy(PATH_DB_ABSOLUTE, $strDbFile,
                          PATH_BACKUP_TMP, $strFileOp,
                          false,                   # Source is not compressed since it is the db directory
@@ -124,7 +125,8 @@ sub backupFile
         {name => 'iCopyResult', value => $iCopyResult, trace => true},
         {name => 'lCopySize', value => $lCopySize, trace => true},
         {name => 'lRepoSize', value => $lRepoSize, trace => true},
-        {name => 'strCopyChecksum', value => $strCopyChecksum, trace => true}
+        {name => 'strCopyChecksum', value => $strCopyChecksum, trace => true},
+        {name => 'bPageChecksum', value => $bPageChecksum, trace => true},
     );
 }
 
@@ -152,6 +154,8 @@ sub backupManifestUpdate
         $lSizeCurrent,
         $strChecksum,
         $strChecksumCopy,
+        $bChecksumPage,
+        $bChecksumPageValid,
         $lManifestSaveSize,
         $lManifestSaveCurrent
     ) =
@@ -171,6 +175,8 @@ sub backupManifestUpdate
             {name => 'lSizeCurrent', trace => true},
             {name => 'strChecksum', required => false, trace => true},
             {name => 'strChecksumCopy', required => false, trace => true},
+            {name => 'bChecksumPage', trace => true},
+            {name => 'bChecksumPageValid', required => false, trace => true},
             {name => 'lManifestSaveSize', trace => true},
             {name => 'lManifestSaveCurrent', trace => true}
         );
@@ -209,6 +215,11 @@ sub backupManifestUpdate
         if ($lSizeCopy > 0)
         {
             $oManifest->set(MANIFEST_SECTION_TARGET_FILE, $strRepoFile, MANIFEST_SUBKEY_CHECKSUM, $strChecksumCopy);
+        }
+
+        if ($bChecksumPage && defined($bChecksumPageValid))
+        {
+            $oManifest->boolSet(MANIFEST_SECTION_TARGET_FILE, $strRepoFile, MANIFEST_SUBKEY_CHECKSUM_PAGE, $bChecksumPageValid);
         }
     }
     # Else the file was removed during backup so remove from manifest

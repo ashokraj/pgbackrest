@@ -122,6 +122,8 @@ use constant MANIFEST_KEY_DB_VERSION                                => 'db-versi
 # Subkeys used for path/file/link info
 use constant MANIFEST_SUBKEY_CHECKSUM                               => 'checksum';
     push @EXPORT, qw(MANIFEST_SUBKEY_CHECKSUM);
+use constant MANIFEST_SUBKEY_CHECKSUM_PAGE                          => 'checksum-page';
+    push @EXPORT, qw(MANIFEST_SUBKEY_CHECKSUM_PAGE);
 use constant MANIFEST_SUBKEY_DESTINATION                            => 'destination';
     push @EXPORT, qw(MANIFEST_SUBKEY_DESTINATION);
 use constant MANIFEST_SUBKEY_FILE                                   => 'file';
@@ -189,6 +191,10 @@ use constant DB_FILE_BACKUPLABELOLD                                 => DB_FILE_B
     push @EXPORT, qw(DB_FILE_BACKUPLABELOLD);
 use constant DB_FILE_PGCONTROL                                      => DB_PATH_GLOBAL . '/pg_control';
     push @EXPORT, qw(DB_FILE_PGCONTROL);
+use constant DB_FILE_PGFILENODEMAP                                  => 'pg_filenode.map';
+    push @EXPORT, qw(DB_FILE_PGFILENODEMAP);
+use constant DB_FILE_PGINTERNALINIT                                 => 'pg_internal.init';
+    push @EXPORT, qw(DB_FILE_PGINTERNALINIT);
 use constant DB_FILE_PGVERSION                                      => 'PG_VERSION';
     push @EXPORT, qw(DB_FILE_PGVERSION);
 use constant DB_FILE_POSTGRESQLAUTOCONFTMP                          => 'postgresql.auto.conf.tmp';
@@ -774,6 +780,11 @@ sub build
             $self->set($strSection, $strFile, MANIFEST_SUBKEY_SIZE, $oManifestHash{name}{$strName}{size} + 0);
             $self->boolSet($strSection, $strFile, MANIFEST_SUBKEY_MASTER,
                 ($strFile eq MANIFEST_FILE_PGCONTROL || $strFile !~ COPY_STANDBY_EXPRESSION) ? true : false);
+
+            # if (isChecksumPage($strFile))
+            # {
+            #     $self->boolSet($strSection, $strFile, MANIFEST_SUBKEY_CHECKSUM_PAGE, true);
+            # }
         }
 
         # Link destination required for link type only
@@ -890,6 +901,14 @@ sub build
                     $self->set(
                         MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_MASTER,
                         $oLastManifest->get(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_MASTER));
+                }
+
+                # Copy checksum page from the previous manifest (if it exists)
+                if ($oLastManifest->test(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE))
+                {
+                    $self->boolSet(
+                        MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE,
+                        $oLastManifest->boolGet(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE));
                 }
             }
         }
@@ -1129,5 +1148,29 @@ sub validate
     # Return from function and log return values if any
     return logDebugReturn($strOperation);
 }
+
+####################################################################################################################################
+# isChecksumPage
+#
+# Can this file have page checksums in PG >= 9.3?
+####################################################################################################################################
+sub isChecksumPage
+{
+    my $strFile = shift;
+
+    if (($strFile =~ ('^' . MANIFEST_TARGET_PGDATA . '\/' . DB_PATH_BASE) &&
+            $strFile !~ ('(' . DB_FILE_PGFILENODEMAP . '|' . DB_FILE_PGINTERNALINIT . '|' . DB_FILE_PGVERSION . ')$')) ||
+        ($strFile =~ ('^' . MANIFEST_TARGET_PGDATA . '\/' . DB_PATH_GLOBAL) &&
+            $strFile !~ ('(' . DB_FILE_PGFILENODEMAP . '|' . DB_FILE_PGINTERNALINIT . '|' . DB_FILE_PGVERSION . '|' .
+            DB_FILE_PGCONTROL . ')$')) ||
+        ($strFile =~ ('^' . MANIFEST_TARGET_PGTBLSPC . '\/') && $strFile !~ (DB_FILE_PGVERSION . '$')))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+push @EXPORT, qw(isChecksumPage);
 
 1;

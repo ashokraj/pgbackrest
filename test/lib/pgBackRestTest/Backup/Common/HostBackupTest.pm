@@ -375,18 +375,37 @@ sub backupCompare
         $oActualManifest->get(INI_SECTION_BACKREST, INI_KEY_CHECKSUM);
     ${$oExpectedManifest}{&INI_SECTION_BACKREST}{&INI_KEY_FORMAT} = BACKREST_FORMAT + 0;
 
-    foreach my $strPathKey ($oActualManifest->keys(MANIFEST_SECTION_TARGET_PATH))
+    foreach my $strFileKey ($oActualManifest->keys(MANIFEST_SECTION_TARGET_FILE))
     {
-        my $strFileSection = MANIFEST_SECTION_TARGET_FILE;
-
-        foreach my $strFileKey ($oActualManifest->keys($strFileSection))
+        if ($oActualManifest->test(MANIFEST_SECTION_TARGET_FILE, $strFileKey, MANIFEST_SUBKEY_REPO_SIZE))
         {
-            if ($oActualManifest->test($strFileSection, $strFileKey, MANIFEST_SUBKEY_REPO_SIZE))
+            ${$oExpectedManifest}{&MANIFEST_SECTION_TARGET_FILE}{$strFileKey}{&MANIFEST_SUBKEY_REPO_SIZE} =
+                $oActualManifest->get(MANIFEST_SECTION_TARGET_FILE, $strFileKey, MANIFEST_SUBKEY_REPO_SIZE);
+        }
+
+        if ($oActualManifest->test(MANIFEST_SECTION_TARGET_FILE, $strFileKey, MANIFEST_SUBKEY_CHECKSUM_PAGE) !=
+            isChecksumPage($strFileKey))
+        {
+            confess
+                "check-page actual for ${strFileKey} is " .
+                ($oActualManifest->test(MANIFEST_SECTION_TARGET_FILE, $strFileKey,
+                    MANIFEST_SUBKEY_CHECKSUM_PAGE) ? 'set' : '[undef]') .
+                ' but isChecksumPage() says it should be ' .
+                (isChecksumPage($strFileKey) ? 'set' : 'undef') . '.';
+        }
+
+        # !!! TEMP
+        if (isChecksumPage($strFileKey))
+        {
+            if ($oActualManifest->get(MANIFEST_SECTION_TARGET_FILE, $strFileKey, MANIFEST_SUBKEY_CHECKSUM_PAGE))
             {
-                ${$oExpectedManifest}{$strFileSection}{$strFileKey}{&MANIFEST_SUBKEY_REPO_SIZE} =
-                    $oActualManifest->get($strFileSection, $strFileKey, MANIFEST_SUBKEY_REPO_SIZE);
+                confess "${strFileKey} checksum-page should be false";
             }
         }
+
+        # !!! TEMP
+        # delete(${$oExpectedManifest}{$strFileSection}{$strFileKey}{&MANIFEST_SUBKEY_CHECKSUM_PAGE});
+        $oActualManifest->remove(MANIFEST_SECTION_TARGET_FILE, $strFileKey, MANIFEST_SUBKEY_CHECKSUM_PAGE);
     }
 
     # Set defaults for subkeys that tend to repeat

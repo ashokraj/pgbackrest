@@ -217,6 +217,7 @@ sub manifestFileCreate
     my $lTime = shift;
     my $strMode = shift;
     my $bMaster = shift;
+    my $bChecksumPage = shift;
 
     # Determine the manifest key
     my $strManifestKey = $self->manifestKeyGet($oManifestRef, $strTarget, $strFile);
@@ -236,6 +237,12 @@ sub manifestFileCreate
     ${$oManifestRef}{&MANIFEST_SECTION_TARGET_FILE}{$strManifestKey}{&MANIFEST_SUBKEY_MASTER} =
         defined($bMaster) ? ($bMaster ? JSON::PP::true : JSON::PP::false) : JSON::PP::false;
     delete(${$oManifestRef}{&MANIFEST_SECTION_TARGET_FILE}{$strManifestKey}{&MANIFEST_SUBKEY_REFERENCE});
+
+    if (defined($bChecksumPage))
+    {
+        ${$oManifestRef}{&MANIFEST_SECTION_TARGET_FILE}{$strManifestKey}{&MANIFEST_SUBKEY_CHECKSUM} =
+            $bMaster ? JSON::PP::true : JSON::PP::false;
+    }
 
     if (defined($strChecksum))
     {

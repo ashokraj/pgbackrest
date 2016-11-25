@@ -140,6 +140,15 @@ sub fileNotInManifest
                         $oFileHash{name}{$strName}{modification_time})
                 {
                     $oManifest->set(MANIFEST_SECTION_TARGET_FILE, $strFile, MANIFEST_SUBKEY_CHECKSUM, $strChecksum);
+
+                    my $bChecksumPage =
+                        $oAbortedManifest->get(MANIFEST_SECTION_TARGET_FILE, $strFile, MANIFEST_SUBKEY_CHECKSUM_PAGE, false);
+
+                    if (defined($bChecksumPage))
+                    {
+                        $oManifest->boolSet(MANIFEST_SECTION_TARGET_FILE, $strFile, MANIFEST_SUBKEY_CHECKSUM_PAGE, $bChecksumPage);
+                    }
+
                     next;
                 }
             }
@@ -337,7 +346,7 @@ sub processManifest
                 $hFile->{db_file} = $oBackupManifest->dbPathGet($strDbCopyPath, $strFile);
             }
 
-            # Make sure that pg_data/PG_VERSION does go away as a sanity check
+            # Make sure that pg_data/PG_VERSION does not go away as a sanity check
             if ($strFile eq MANIFEST_TARGET_PGDATA . '/' . DB_FILE_PGVERSION)
             {
                 $hFile->{bIgnoreMissing} = false;
@@ -370,7 +379,8 @@ sub processManifest
             {
                 $oBackupProcess->queueBackup(
                     $iHostConfigIdx, $hFile->{queue}, $hFile->{repo_file}, $hFile->{db_file}, $hFile->{repo_file},
-                    $bCompress, $hFile->{modification_time}, $hFile->{size}, $hFile->{checksum}, $hFile->{bIgnoreMissing});
+                    $bCompress, $hFile->{modification_time}, $hFile->{size}, isChecksumPage($strFile),
+                    $hFile->{checksum}, $hFile->{bIgnoreMissing});
             }
         }
     }
@@ -417,7 +427,8 @@ sub processManifest
                     $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $hResult->{iHostConfigIdx}), false),
                     $hResult->{iProcessId}, $$hFile{strRepoFile}, $$hFile{strDbFile}, $$hResult{iCopyResult}, $$hFile{lSize},
                     $$hResult{lCopySize}, $$hResult{lRepoSize}, $lSizeTotal, $lSizeCurrent, $$hFile{strChecksum},
-                    $$hResult{strCopyChecksum}, $lManifestSaveSize, $lManifestSaveCurrent);
+                    $$hResult{strCopyChecksum}, $hFile->{bChecksumPage}, $hResult->{bChecksumPageValid},
+                    $lManifestSaveSize, $lManifestSaveCurrent);
             }
 
             # A keep-alive is required here because if there are a large number of resumed files that need to be checksummed
@@ -435,7 +446,8 @@ sub processManifest
             backupManifestUpdate(
                 $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $self->{iMasterRemoteIdx}), false), undef,
                 $$hFileControl{repo_file}, $$hFileControl{db_file}, $iCopyResult, $$hFileControl{size}, $lCopySize, $lRepoSize,
-                $lSizeTotal, $lSizeCurrent, $$hFileControl{checksum}, $strCopyChecksum, $lManifestSaveSize, $lManifestSaveCurrent);
+                $lSizeTotal, $lSizeCurrent, $$hFileControl{checksum}, $strCopyChecksum, false, undef,
+                $lManifestSaveSize, $lManifestSaveCurrent);
         }
     }
 

@@ -97,7 +97,7 @@ sub commandProcess
 
     if ($strCommand eq OP_BACKUP_FILE)
     {
-        my ($iCopyResult, $lCopySize, $lRepoSize, $strCopyChecksum) = backupFile(
+        my ($iCopyResult, $lCopySize, $lRepoSize, $strCopyChecksum, $bPageChecksum) = backupFile(
             $self->{oFile},
             $self->paramGet(OP_PARAM_DB_FILE),
             $self->paramGet(OP_PARAM_REPO_FILE),
@@ -108,7 +108,9 @@ sub commandProcess
             $self->paramGet(OP_PARAM_IGNORE_MISSING, false));
 
         $self->outputWrite(
-            $iCopyResult . ($iCopyResult != BACKUP_FILE_SKIP ? "\t${lCopySize}\t${lRepoSize}\t${strCopyChecksum}" : ''));
+            $iCopyResult .
+            ($iCopyResult != BACKUP_FILE_SKIP ? "\t${lCopySize}\t${lRepoSize}\t${strCopyChecksum}" .
+                (defined($bPageChecksum) ? "\t${bPageChecksum}" : '') : ''));
     }
     elsif ($strCommand eq OP_RESTORE_FILE)
     {
