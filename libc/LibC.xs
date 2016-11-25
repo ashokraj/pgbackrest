@@ -1,6 +1,7 @@
 #define PERL_NO_GET_CONTEXT
 
 #include "LibC.h"
+#include "XSUB.h"
 #include "const-c.inc"
 
 /*
