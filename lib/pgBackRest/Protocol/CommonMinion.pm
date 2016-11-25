@@ -9,6 +9,8 @@ use warnings FATAL => qw(all);
 use Carp qw(confess);
 use English '-no_match_vars';
 
+use JSON::PP;
+
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Ini;
 use pgBackRest::Common::Log;
@@ -56,6 +58,9 @@ sub new
 
     # Write the greeting so master process knows who we are
     $self->greetingWrite();
+
+    # Create JSON object
+    $self->{oJSON} = JSON::PP->new()->canonical()->allow_nonref();
 
     # Initialize module variables
     $self->init();

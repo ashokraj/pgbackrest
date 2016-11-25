@@ -46,6 +46,9 @@ sub new
     # Reset module variables to get ready for queueing
     $self->reset();
 
+    # Create JSON object
+    $self->{oJSON} = JSON::PP->new()->canonical()->allow_nonref();
+
     # Return from function and log return values if any
     return logDebugReturn
     (
@@ -315,7 +318,7 @@ sub process
 
             # Get the job result
             my $hJob = $hLocal->{hJob};
-            $self->cmdResult($hLocal->{oLocal}, $hJob);
+            $hJob->{hResult} = $self->{oJSON}->decode($hLocal->{oLocal}->outputRead(true));
             $hJob->{iProcessId} = $hLocal->{iProcessId};
             push(@hyResult, $hJob);
 

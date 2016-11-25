@@ -417,17 +417,23 @@ sub processManifest
         }
 
         # Run the backup jobs and process results
-        while (my $hyResult = $oBackupProcess->process())
+        while (my $hyJob = $oBackupProcess->process())
         {
-            foreach my $hResult (@{$hyResult})
+            foreach my $hJob (@{$hyJob})
             {
-                my $hFile = $hResult->{hPayload};
+                my $hParam = $hJob->{hPayload};
+                my $hResult = $hJob->{hResult};
+
+                # if ($hParam->{strRepoFile} eq 'pg_data/base/1/12000')
+                # {
+                #     use Data::Dumper; confess "hJob " . Dumper($hJob);
+                # }
 
                 ($lSizeCurrent, $lManifestSaveCurrent) = backupManifestUpdate(
-                    $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $hResult->{iHostConfigIdx}), false),
-                    $hResult->{iProcessId}, $$hFile{strRepoFile}, $$hFile{strDbFile}, $$hResult{iCopyResult}, $$hFile{lSize},
-                    $$hResult{lCopySize}, $$hResult{lRepoSize}, $lSizeTotal, $lSizeCurrent, $$hFile{strChecksum},
-                    $$hResult{strCopyChecksum}, $hFile->{&OP_PARAM_CHECKSUM_PAGE}, $hResult->{bChecksumPageValid},
+                    $oBackupManifest, optionGet(optionIndex(OPTION_DB_HOST, $hJob->{iHostConfigIdx}), false),
+                    $hJob->{iProcessId}, $hParam->{strRepoFile}, $hParam->{strDbFile}, $hResult->{iCopyResult}, $hParam->{lSize},
+                    $hResult->{lCopySize}, $hResult->{lRepoSize}, $lSizeTotal, $lSizeCurrent, $hParam->{strChecksum},
+                    $hResult->{strCopyChecksum}, $hParam->{&OP_PARAM_CHECKSUM_PAGE}, $hResult->{hExtra}{bValid},
                     $lManifestSaveSize, $lManifestSaveCurrent);
             }
 

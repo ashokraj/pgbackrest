@@ -66,7 +66,7 @@ sub backupFile
 
     my $iCopyResult = BACKUP_FILE_COPY;             # Copy result
     my $strCopyChecksum;                            # Copy checksum
-    my $bPageChecksum;                              # Page checksum result
+    my $hExtra;                                     # Page checksum result
     my $lCopySize;                                  # Copy Size
     my $lRepoSize;                                  # Repo size
 
@@ -96,7 +96,7 @@ sub backupFile
     if ($bCopy)
     {
         # Copy the file from the database to the backup (will return false if the source file is missing)
-        (my $bCopyResult, $strCopyChecksum, $lCopySize, $bPageChecksum) =
+        (my $bCopyResult, $strCopyChecksum, $lCopySize, $hExtra) =
             $oFile->copy(PATH_DB_ABSOLUTE, $strDbFile,
                          PATH_BACKUP_TMP, $strFileOp,
                          false,                   # Source is not compressed since it is the db directory
@@ -128,7 +128,7 @@ sub backupFile
         {name => 'lCopySize', value => $lCopySize, trace => true},
         {name => 'lRepoSize', value => $lRepoSize, trace => true},
         {name => 'strCopyChecksum', value => $strCopyChecksum, trace => true},
-        {name => 'bPageChecksum', value => $bPageChecksum, trace => true},
+        {name => 'hExtra', value => $hExtra, trace => true},
     );
 }
 

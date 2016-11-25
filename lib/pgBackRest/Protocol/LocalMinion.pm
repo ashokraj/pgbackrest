@@ -8,6 +8,8 @@ use strict;
 use warnings FATAL => qw(all);
 use Carp qw(confess);
 
+use JSON::PP;
+
 use pgBackRest::BackupFile;
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Log;
@@ -97,21 +99,21 @@ sub commandProcess
 
     if ($strCommand eq OP_BACKUP_FILE)
     {
-        my ($iCopyResult, $lCopySize, $lRepoSize, $strCopyChecksum, $bPageChecksum) = backupFile(
-            $self->{oFile},
-            $self->paramGet(OP_PARAM_DB_FILE),
-            $self->paramGet(OP_PARAM_REPO_FILE),
-            $self->paramGet(OP_PARAM_DESTINATION_COMPRESS),
-            $self->paramGet(OP_PARAM_CHECKSUM, false),
-            $self->paramGet(OP_PARAM_CHECKSUM_PAGE),
-            $self->paramGet(OP_PARAM_MODIFICATION_TIME),
-            $self->paramGet(OP_PARAM_SIZE),
-            $self->paramGet(OP_PARAM_IGNORE_MISSING, false));
+        my $hResult = {};
 
-        $self->outputWrite(
-            $iCopyResult .
-            ($iCopyResult != BACKUP_FILE_SKIP ? "\t${lCopySize}\t${lRepoSize}\t${strCopyChecksum}" .
-                (defined($bPageChecksum) ? "\t${bPageChecksum}" : '') : ''));
+        ($hResult->{iCopyResult}, $hResult->{lCopySize}, $hResult->{lRepoSize}, $hResult->{strCopyChecksum}, $hResult->{hExtra}) =
+            backupFile(
+                $self->{oFile},
+                $self->paramGet(OP_PARAM_DB_FILE),
+                $self->paramGet(OP_PARAM_REPO_FILE),
+                $self->paramGet(OP_PARAM_DESTINATION_COMPRESS),
+                $self->paramGet(OP_PARAM_CHECKSUM, false),
+                $self->paramGet(OP_PARAM_CHECKSUM_PAGE),
+                $self->paramGet(OP_PARAM_MODIFICATION_TIME),
+                $self->paramGet(OP_PARAM_SIZE),
+                $self->paramGet(OP_PARAM_IGNORE_MISSING, false));
+
+        $self->outputWrite($self->{oJSON}->encode($hResult));
     }
     elsif ($strCommand eq OP_RESTORE_FILE)
     {

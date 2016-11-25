@@ -1333,7 +1333,7 @@ sub copy
     # Checksum and size variables
     my $strChecksum = undef;
     my $iFileSize = undef;
-    my $bPageChecksum = undef;
+    my $hExtra = undef;
     my $bResult = true;
 
     # Open the source and destination files (if needed)
@@ -1597,7 +1597,7 @@ sub copy
         # If the source is not compressed and the destination is then compress
         if (!$bSourceCompressed && $bDestinationCompress)
         {
-            ($strChecksum, $iFileSize, $bPageChecksum) =
+            ($strChecksum, $iFileSize, $hExtra) =
                 $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'out', false, true, false);
         }
         # If the source is compressed and the destination is not then decompress
@@ -1693,7 +1693,7 @@ sub copy
         {name => 'bResult', value => $bResult, trace => true},
         {name => 'strChecksum', value => $strChecksum, trace => true},
         {name => 'iFileSize', value => $iFileSize, trace => true},
-        {name => 'bPageChecksum', value => $bPageChecksum, trace => true},
+        {name => 'hExtra', value => $hExtra, trace => true},
     );
 }
 

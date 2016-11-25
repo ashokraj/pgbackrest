@@ -40,38 +40,29 @@ sub new
 #
 # Get the backup file result.
 ####################################################################################################################################
-sub cmdResult
-{
-    my $self = shift;
-
-    # Assign function parameters, defaults, and log debug info
-    my
-    (
-        $strOperation,
-        $oLocal,
-        $hJob,
-    ) =
-        logDebugParam
-        (
-            __PACKAGE__ . '->cmdResult', \@_,
-            {name => 'oLocal', trace => true},
-            {name => 'hJob', trace => true},
-        );
-
-    my $strResult = $oLocal->outputRead(true);
-    $hJob->{iCopyResult} = (split("\t", $strResult))[0];
-
-    if ($hJob->{iCopyResult} != BACKUP_FILE_SKIP)
-    {
-        $hJob->{lCopySize} = (split("\t", $strResult))[1];
-        $hJob->{lRepoSize} = (split("\t", $strResult))[2];
-        $hJob->{strCopyChecksum} = (split("\t", $strResult))[3];
-        $hJob->{bChecksumPageValid} = (split("\t", $strResult))[4];
-    }
-
-    # Return from function and log return values if any
-    return logDebugReturn($strOperation);
-}
+# sub cmdResult
+# {
+#     my $self = shift;
+#
+#     # Assign function parameters, defaults, and log debug info
+#     my
+#     (
+#         $strOperation,
+#         $oLocal,
+#         $hJob,
+#     ) =
+#         logDebugParam
+#         (
+#             __PACKAGE__ . '->cmdResult', \@_,
+#             {name => 'oLocal', trace => true},
+#             {name => 'hJob', trace => true},
+#         );
+#
+#     $hJob = $self->{oJSON}->decode($oLocal->outputRead(true));
+#
+#     # Return from function and log return values if any
+#     return logDebugReturn($strOperation);
+# }
 
 ####################################################################################################################################
 # cmdSend

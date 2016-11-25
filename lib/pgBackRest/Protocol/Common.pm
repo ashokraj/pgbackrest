@@ -180,6 +180,9 @@ sub new
         $self->{strGreeting} = uc(BACKREST_NAME) . uc($self->{strName}) . ' ' . BACKREST_VERSION;
     }
 
+    # Create JSON object
+    $self->{oJSON} = JSON::PP->new()->canonical()->allow_nonref();
+
     # Return from function and log return values if any
     return logDebugReturn
     (
@@ -345,7 +348,6 @@ sub binaryXfer
     # Default protocol to true
     $bProtocol = defined($bProtocol) ? $bProtocol : true;
     my $strMessage = undef;
-    my $oJSON = JSON::PP->new()->canonical()->allow_nonref();
 
     # Data that will be passed back (sha1 checksum, size, extra data)
     my $hMessage = {hExtra => {bValid => true}};
@@ -592,7 +594,7 @@ sub binaryXfer
                     undef($strMessage);
                 }
 
-                $self->blockWrite($oOut, undef, 0, $bProtocol, $oJSON->encode($hMessage));
+                $self->blockWrite($oOut, undef, 0, $bProtocol, $self->{oJSON}->encode($hMessage));
             }
         }
         # If source is already compressed or transfer is not compressed then just read the stream
@@ -705,7 +707,7 @@ sub binaryXfer
                 # Set protocol message
                 if ($bProtocol)
                 {
-                    $strMessage = $oJSON->encode($hMessage);
+                    $strMessage = $self->{oJSON}->encode($hMessage);
                 }
             }
 
@@ -721,11 +723,11 @@ sub binaryXfer
     # If message is defined then the checksum, size, and extra should be in it
     if (defined($strMessage))
     {
-        $hMessage = $oJSON->decode($strMessage);
+        $hMessage = $self->{oJSON}->decode($strMessage);
     }
 
     # Return the checksum and size if they are available
-    return $hMessage->{strChecksum}, $hMessage->{iFileSize}, $hMessage->{hExtra}{bValid};
+    return $hMessage->{strChecksum}, $hMessage->{iFileSize}, $hMessage->{hExtra};
 }
 
 ####################################################################################################################################
