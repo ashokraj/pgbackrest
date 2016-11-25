@@ -101,7 +101,6 @@ typedef struct PageHeaderData
 
 typedef PageHeaderData *PageHeader;
 
-
 // number of checksums to calculate in parallel
 #define N_SUMS 32
 
@@ -109,7 +108,7 @@ typedef PageHeaderData *PageHeader;
 #define FNV_PRIME 16777619
 
 // Base offsets to initialize each of the parallel FNV hashes into a different initial state.
-static const uint32 checksumBaseOffsets[N_SUMS] =
+static const uint32 uiyChecksumBaseOffsets[N_SUMS] =
 {
     0x5B1F36E9, 0xB8525960, 0x02AB50AA, 0x1DE66D2A, 0x79FF467A, 0x9BB9F8A3, 0x217E7CD2, 0x83E13D2C,
     0xF8D4474F, 0xE39EB970, 0x42C6AE16, 0x993216FA, 0x7B093B5D, 0x98DAFF3C, 0xF718902A, 0x0B1C9CDB,
@@ -118,10 +117,10 @@ static const uint32 checksumBaseOffsets[N_SUMS] =
 };
 
 // Calculate one round of the checksum.
-#define CHECKSUM_COMP(checksum, value) \
+#define CHECKSUM_COMP(uiChecksum, uiValue) \
 do { \
-    uint32 __tmp = (checksum) ^ (value); \
-    (checksum) = __tmp * FNV_PRIME ^ (__tmp >> 17); \
+    uint32 uiTemp = (uiChecksum) ^ (uiValue); \
+    (uiChecksum) = uiTemp * FNV_PRIME ^ (uiTemp >> 17); \
 } while (0)
 
 /*
@@ -129,35 +128,31 @@ do { \
  * boundary.
  */
 static uint32
-pg_checksum_block(char *data, uint32 size)
+pg_checksum_block(char *szData, uint32 uiSize)
 {
-	uint32		sums[N_SUMS];
-	uint32		(*dataArr)[N_SUMS] = (uint32 (*)[N_SUMS]) data;
-	uint32		result = 0;
-	uint32		i,
-				j;
+    uint32 uiySums[N_SUMS];
+    uint32 (*puiyDataArray)[N_SUMS] = (uint32 (*)[N_SUMS])szData;
+    uint32 uiResult = 0;
+    uint32 i, j;
 
-	/* ensure that the size is compatible with the algorithm */
-	// Assert((size % (sizeof(uint32) * N_SUMS)) == 0);
+    /* initialize partial checksums to their corresponding offsets */
+    memcpy(uiySums, uiyChecksumBaseOffsets, sizeof(uiyChecksumBaseOffsets));
 
-	/* initialize partial checksums to their corresponding offsets */
-	memcpy(sums, checksumBaseOffsets, sizeof(checksumBaseOffsets));
+    /* main checksum calculation */
+    for (i = 0; i < uiSize / sizeof(uint32) / N_SUMS; i++)
+        for (j = 0; j < N_SUMS; j++)
+            CHECKSUM_COMP(uiySums[j], puiyDataArray[i][j]);
 
-	/* main checksum calculation */
-	for (i = 0; i < size / sizeof(uint32) / N_SUMS; i++)
-		for (j = 0; j < N_SUMS; j++)
-			CHECKSUM_COMP(sums[j], dataArr[i][j]);
-
-	/* finally add in two rounds of zeroes for additional mixing */
-	for (i = 0; i < 2; i++)
-		for (j = 0; j < N_SUMS; j++)
-			CHECKSUM_COMP(sums[j], 0);
+    /* finally add in two rounds of zeroes for additional mixing */
+    for (i = 0; i < 2; i++)
+        for (j = 0; j < N_SUMS; j++)
+            CHECKSUM_COMP(uiySums[j], 0);
 
     // xor fold partial checksums together
     for (i = 0; i < N_SUMS; i++)
-        result ^= sums[i];
+        uiResult ^= uiySums[i];
 
-    return result;
+    return uiResult;
 }
 
 /***********************************************************************************************************************************
@@ -169,25 +164,22 @@ The checksum includes the block number (to detect the case where a page is someh
 (excluding the checksum itself), and the page data.
 ***********************************************************************************************************************************/
 uint16
-pageChecksum(char *page, uint32 blkno, uint32 pageSize)
+pageChecksum(char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
 {
-    PageHeader phdr = (PageHeader) page;
-    uint16 save_checksum;
-    uint32 checksum;
-
     // Save pd_checksum and temporarily set it to zero, so that the checksum calculation isn't affected by the old checksum stored
     // on the page. Restore it after, because actually updating the checksum is NOT part of the API of this function.
-    save_checksum = phdr->pd_checksum;
-    phdr->pd_checksum = 0;
-    checksum = pg_checksum_block(page, pageSize);
-    phdr->pd_checksum = save_checksum;
+    PageHeader pxPageHeader = (PageHeader)szPage;
+
+    uint usOriginalChecksum = pxPageHeader->pd_checksum;
+    pxPageHeader->pd_checksum = 0;
+    uint uiChecksum = pg_checksum_block(szPage, uiPageSize);
+    pxPageHeader->pd_checksum = usOriginalChecksum;
 
     // Mix in the block number to detect transposed pages
-    checksum ^= blkno;
+    uiChecksum ^= uiBlockNo;
 
-    // Reduce to a uint16 (to fit in the pd_checksum field) with an offset of one. That avoids checksums of zero, which seems like a
-    // good idea.
-    return (checksum % 65535) + 1;
+    // Reduce to a uint16 with an offset of one. That avoids checksums of zero, which seems like a good idea.
+    return (uiChecksum % 65535) + 1;
 }
 
 /***********************************************************************************************************************************
