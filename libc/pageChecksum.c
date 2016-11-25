@@ -101,6 +101,11 @@ typedef struct PageHeaderData
 
 typedef PageHeaderData *PageHeader;
 
+/***********************************************************************************************************************************
+pageChecksumBlock
+
+Block checksum algorithm.  The data argument must be aligned on a 4-byte boundary.
+***********************************************************************************************************************************/
 // number of checksums to calculate in parallel
 #define N_SUMS 32
 
@@ -123,12 +128,8 @@ do { \
     (uiChecksum) = uiTemp * FNV_PRIME ^ (uiTemp >> 17); \
 } while (0)
 
-/*
- * Block checksum algorithm.  The data argument must be aligned on a 4-byte
- * boundary.
- */
 static uint32
-pg_checksum_block(char *szData, uint32 uiSize)
+pageChecksumBlock(const char *szData, uint32 uiSize)
 {
     uint32 uiySums[N_SUMS];
     uint32 (*puiyDataArray)[N_SUMS] = (uint32 (*)[N_SUMS])szData;
@@ -164,7 +165,7 @@ The checksum includes the block number (to detect the case where a page is someh
 (excluding the checksum itself), and the page data.
 ***********************************************************************************************************************************/
 uint16
-pageChecksum(char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
+pageChecksum(const char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
 {
     // Save pd_checksum and temporarily set it to zero, so that the checksum calculation isn't affected by the old checksum stored
     // on the page. Restore it after, because actually updating the checksum is NOT part of the API of this function.
@@ -172,7 +173,7 @@ pageChecksum(char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
 
     uint usOriginalChecksum = pxPageHeader->pd_checksum;
     pxPageHeader->pd_checksum = 0;
-    uint uiChecksum = pg_checksum_block(szPage, uiPageSize);
+    uint uiChecksum = pageChecksumBlock(szPage, uiPageSize);
     pxPageHeader->pd_checksum = usOriginalChecksum;
 
     // Mix in the block number to detect transposed pages
@@ -188,7 +189,7 @@ pageChecksumTest
 Test checksums for a single page.
 ***********************************************************************************************************************************/
 bool
-pageChecksumTest(char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
+pageChecksumTest(const char *szPage, uint32 uiBlockNo, uint32 uiPageSize)
 {
     // Get the actual checksum from the page
     uint16 usActualChecksum = ((PageHeader)szPage)->pd_checksum;
@@ -206,7 +207,7 @@ pageChecksumBuffer
 Test checksums for all pages in a buffer.
 ***********************************************************************************************************************************/
 bool
-pageChecksumBuffer(char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStart, uint32 uiPageSize)
+pageChecksumBuffer(const char *szPageBuffer, uint32 uiBufferSize, uint32 uiBlockNoStart, uint32 uiPageSize)
 {
     // If the buffer does not represent an even number of pages then error
     if (uiBufferSize % uiPageSize != 0)

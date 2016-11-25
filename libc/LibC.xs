@@ -19,19 +19,19 @@ INCLUDE: const-xs.inc
 
 U16
 pageChecksum(page, blkno, pageSize)
-    char * page
+    const char * page
     U32 blkno
     U32 pageSize
 
 bool
 pageChecksumTest(page, blockNo, pageSize)
-    char *page
+    const char *page
     U32 blockNo
     U32 pageSize
 
 bool
 pageChecksumBuffer(pageBuffer, bufferSize, blockNoStart, pageSize)
-    char *pageBuffer
+    const char *pageBuffer
     U32 bufferSize
     U32 blockNoStart
     U32 pageSize
