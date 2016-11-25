@@ -1271,16 +1271,16 @@ sub process
     }
 
     # Run the restore jobs and process results
-    while (my $hyResult = $oRestoreProcess->process())
+    while (my $hyJob = $oRestoreProcess->process())
     {
-        foreach my $hResult (@{$hyResult})
+        foreach my $hJob (@{$hyJob})
         {
-            my $hFile = $hResult->{hPayload};
+            my $hParam = $hJob->{hPayload};
 
             ($lSizeCurrent) = restoreLog(
-                $hFile->{&OP_PARAM_DB_FILE}, $hResult->{bCopy}, $hFile->{&OP_PARAM_SIZE}, $hFile->{&OP_PARAM_MODIFICATION_TIME},
-                $hFile->{&OP_PARAM_CHECKSUM}, $hFile->{&OP_PARAM_ZERO}, optionGet(OPTION_FORCE), $lSizeTotal, $lSizeCurrent,
-                $hResult->{iProcessId});
+                $hParam->{&OP_PARAM_DB_FILE}, $hJob->{hResult}, $hParam->{&OP_PARAM_SIZE}, $hParam->{&OP_PARAM_MODIFICATION_TIME},
+                $hParam->{&OP_PARAM_CHECKSUM}, $hParam->{&OP_PARAM_ZERO}, optionGet(OPTION_FORCE), $lSizeTotal, $lSizeCurrent,
+                $hJob->{iProcessId});
         }
 
         # A keep-alive is required here because if there are a large number of resumed files that need to be checksummed

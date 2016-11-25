@@ -117,24 +117,23 @@ sub commandProcess
     }
     elsif ($strCommand eq OP_RESTORE_FILE)
     {
-        $self->outputWrite(
-            restoreFile(
-                $self->{oFile},
-                $self->paramGet(&OP_PARAM_REPO_FILE),
-                $self->paramGet(&OP_PARAM_DB_FILE),
-                $self->paramGet(&OP_PARAM_REFERENCE, false),
-                $self->paramGet(&OP_PARAM_SIZE),
-                $self->paramGet(&OP_PARAM_MODIFICATION_TIME),
-                $self->paramGet(&OP_PARAM_MODE),
-                $self->paramGet(&OP_PARAM_USER),
-                $self->paramGet(&OP_PARAM_GROUP),
-                $self->paramGet(&OP_PARAM_CHECKSUM, false),
-                $self->paramGet(&OP_PARAM_ZERO, false),
-                $self->paramGet(&OP_PARAM_COPY_TIME_START),
-                $self->paramGet(&OP_PARAM_DELTA),
-                $self->paramGet(&OP_PARAM_FORCE),
-                $self->paramGet(&OP_PARAM_BACKUP_PATH),
-                $self->paramGet(&OP_PARAM_SOURCE_COMPRESSION)));
+        $self->outputWrite($self->{oJSON}->encode(restoreFile(
+            $self->{oFile},
+            $self->paramGet(&OP_PARAM_REPO_FILE),
+            $self->paramGet(&OP_PARAM_DB_FILE),
+            $self->paramGet(&OP_PARAM_REFERENCE, false),
+            $self->paramGet(&OP_PARAM_SIZE),
+            $self->paramGet(&OP_PARAM_MODIFICATION_TIME),
+            $self->paramGet(&OP_PARAM_MODE),
+            $self->paramGet(&OP_PARAM_USER),
+            $self->paramGet(&OP_PARAM_GROUP),
+            $self->paramGet(&OP_PARAM_CHECKSUM, false),
+            $self->paramGet(&OP_PARAM_ZERO, false),
+            $self->paramGet(&OP_PARAM_COPY_TIME_START),
+            $self->paramGet(&OP_PARAM_DELTA),
+            $self->paramGet(&OP_PARAM_FORCE),
+            $self->paramGet(&OP_PARAM_BACKUP_PATH),
+            $self->paramGet(&OP_PARAM_SOURCE_COMPRESSION))));
     }
     # Command not processed
     else
