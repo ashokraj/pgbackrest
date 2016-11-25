@@ -47,35 +47,6 @@ sub new
 }
 
 ####################################################################################################################################
-# cmdResult
-#
-# Get the backup file result.
-####################################################################################################################################
-# sub cmdResult
-# {
-#     my $self = shift;
-#
-#     # Assign function parameters, defaults, and log debug info
-#     my
-#     (
-#         $strOperation,
-#         $oLocal,
-#         $hJob,
-#     ) =
-#         logDebugParam
-#         (
-#             __PACKAGE__ . '->cmdResult', \@_,
-#             {name => 'oLocal', trace => true},
-#             {name => 'hJob', trace => true},
-#         );
-#
-#     $hJob->{bCopy} = $oLocal->outputRead(true);
-#
-#     # Return from function and log return values if any
-#     return logDebugReturn($strOperation);
-# }
-
-####################################################################################################################################
 # cmdSend
 #
 # Send the backup file command.
