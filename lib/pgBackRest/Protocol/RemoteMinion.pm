@@ -10,6 +10,7 @@ use Carp qw(confess);
 
 use File::Basename qw(dirname);
 
+use pgBackRest::BackupFile;
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Log;
 use pgBackRest::Archive;
@@ -109,14 +110,17 @@ sub commandProcess
     # Copy file
     if ($strCommand eq OP_FILE_COPY || $strCommand eq OP_FILE_COPY_IN || $strCommand eq OP_FILE_COPY_OUT)
     {
-        my $bResult;
-        my $strChecksum;
-        my $iFileSize;
+        my $hResult = {};
+        my $fnExtra = defined($self->paramGet('fn_extra', false)) ? \&pgBackRest::BackupFile::backupChecksumPage : undef;
+        # !!! Should be like this, but ->NAME does not give the package
+        # my $fnExtra = defined($self->paramGet('fn_extra', false)) ?
+        #     eval('\\&' . $self->paramGet('fn_extra_package') . '::' . $self->paramGet('fn_extra')) : undef;
+        # defined($self->paramGet('fn_extra', false)) ? eval('\\&' . $self->paramGet('fn_extra')) : undef);
 
         # Copy a file locally
         if ($strCommand eq OP_FILE_COPY)
         {
-            ($bResult, $strChecksum, $iFileSize) = $self->{oFile}->copy(
+            ($hResult->{bResult}, $hResult->{strChecksum}, $hResult->{iFileSize}) = $self->{oFile}->copy(
                 PATH_ABSOLUTE, $self->paramGet('source_file'),
                 PATH_ABSOLUTE, $self->paramGet('destination_file'),
                 $self->paramGet('source_compressed'),
@@ -132,7 +136,7 @@ sub commandProcess
         # Copy a file from STDIN
         elsif ($strCommand eq OP_FILE_COPY_IN)
         {
-            ($bResult, $strChecksum, $iFileSize) = $self->{oFile}->copy(
+            ($hResult->{bResult}, $hResult->{strChecksum}, $hResult->{iFileSize}) = $self->{oFile}->copy(
                 PIPE_STDIN, undef,
                 PATH_ABSOLUTE, $self->paramGet('destination_file'),
                 $self->paramGet('source_compressed'),
@@ -147,16 +151,16 @@ sub commandProcess
         # Copy a file to STDOUT
         elsif ($strCommand eq OP_FILE_COPY_OUT)
         {
-            ($bResult, $strChecksum, $iFileSize) = $self->{oFile}->copy(
+            ($hResult->{bResult}, $hResult->{strChecksum}, $hResult->{iFileSize}, $hResult->{hExtra}) = $self->{oFile}->copy(
                 PATH_ABSOLUTE, $self->paramGet('source_file'),
                 PIPE_STDOUT, undef,
                 $self->paramGet('source_compressed'),
-                $self->paramGet('destination_compress'));
+                $self->paramGet('destination_compress'),
+                undef, undef, undef, undef, undef, undef, undef,
+                $fnExtra);
         }
 
-        $self->outputWrite(
-            ($bResult ? 'Y' : 'N') . " " . (defined($strChecksum) ? $strChecksum : '?') . " " .
-            (defined($iFileSize) ? $iFileSize : '?'));
+        $self->outputWrite($self->{oJSON}->encode($hResult));
     }
     # List files in a path
     elsif ($strCommand eq OP_FILE_LIST)

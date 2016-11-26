@@ -32,6 +32,57 @@ use constant BACKUP_FILE_SKIP                                       => 3;
     push @EXPORT, qw(BACKUP_FILE_SKIP);
 
 ####################################################################################################################################
+# Load the C library if present
+####################################################################################################################################
+my $bLibC = false;
+
+eval
+{
+    # Load the C library only if page checksums are required
+    require pgBackRest::LibC;
+    pgBackRest::LibC->import(qw(:checksum));
+
+    $bLibC = true;
+
+    return 1;
+} or do {};
+
+####################################################################################################################################
+# backupChecksumPage
+####################################################################################################################################
+sub backupChecksumPage
+{
+    my $tBufferRef = shift;
+    my $iBufferSize = shift;
+    my $hExtra = shift;
+
+    # Initialize the extra hash
+    if (!defined($hExtra))
+    {
+        $hExtra->{bValid} = true;
+    }
+
+    # If the buffer is not divisible by 0 then it's not valid
+    if ($iBufferSize % 8192 != 0)
+    {
+        if (defined($hExtra->{bAlign}))
+        {
+            confess &log(ASSERT, "should not be possible to see two misaligned blocks in a row");
+        }
+
+        $hExtra->{bValid} = false;
+        $hExtra->{bAlign} = false;
+    }
+    else
+    {
+        if (!pageChecksumBuffer($$tBufferRef, $iBufferSize, 0, 8192))
+        {
+            $hExtra->{bValid} = false;
+        }
+    }
+}
+
+####################################################################################################################################
 # backupFile
 ####################################################################################################################################
 sub backupFile
@@ -96,15 +147,18 @@ sub backupFile
     if ($bCopy)
     {
         # Copy the file from the database to the backup (will return false if the source file is missing)
-        (my $bCopyResult, $strCopyChecksum, $lCopySize, $hExtra) =
-            $oFile->copy(PATH_DB_ABSOLUTE, $strDbFile,
-                         PATH_BACKUP_TMP, $strFileOp,
-                         false,                   # Source is not compressed since it is the db directory
-                         $bDestinationCompress,   # Destination should be compressed based on backup settings
-                         $bIgnoreMissing,         # Ignore missing files
-                         $lModificationTime,      # Set modification time - this is required for resume
-                         undef,                   # Do not set original mode
-                         true);                   # Create the destination directory if it does not exist
+        (my $bCopyResult, $strCopyChecksum, $lCopySize, $hExtra) = $oFile->copy(
+            PATH_DB_ABSOLUTE, $strDbFile,                           # Source path/file
+            PATH_BACKUP_TMP, $strFileOp,                            # Destination path/file
+            false,                                                  # Source is not compressed since it is the db directory
+            $bDestinationCompress,                                  # Destination should be compressed based on backup settings
+            $bIgnoreMissing,                                        # Ignore missing files
+            $lModificationTime,                                     # Set modification time - this is required for resume
+            undef,                                                  # Do not set original mode
+            true,                                                   # Create the destination directory if it does not exist
+            undef, undef, undef,                                    # Unused
+            # $bChecksumPage ? 'pgBackRest::BackupFile' : undef,      # Package containing function to process page checksums
+            $bChecksumPage ? \&backupChecksumPage : undef);         # Function to process page checksums
 
         # If source file is missing then assume the database removed it (else corruption and nothing we can do!)
         if (!$bCopyResult)

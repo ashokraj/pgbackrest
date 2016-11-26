@@ -149,7 +149,7 @@ P00  DEBUG:     Protocol::CommonMaster->close=>: iExitStatus = 0
 P01   INFO: backup file [TEST_PATH]/db-master/db/base/PG_VERSION (3B, 0%) checksum 184473f470864e067ee3a22e64b47b0a1c356f29
 P00  DEBUG:     BackupFile::backupManifestUpdate: save manifest: lManifestSaveCurrent = 3, lManifestSaveSize = 3
 P00  DEBUG:     Protocol::LocalProcess->process: all jobs complete
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = true, bIgnoreMissingSource = false, bSourceCompressed = false, lModificationTime = [MODIFICATION-TIME-1], strDestinationFile = pg_data/global/pg_control.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = [TEST_PATH]/db-master/db/base/global/pg_control, strSourcePathType = db:absolute, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = true, bIgnoreMissingSource = false, bSourceCompressed = false, fnExtra = [undef], lModificationTime = [MODIFICATION-TIME-1], strDestinationFile = pg_data/global/pg_control.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = [TEST_PATH]/db-master/db/base/global/pg_control, strSourcePathType = db:absolute, strUser = [undef]
 P00   INFO: backup file [TEST_PATH]/db-master/db/base/global/pg_control (8KB, 100%) checksum 2ee0de0a5fb5cf15f4a24e72b368c41f7e187003
 P00  DEBUG:     BackupFile::backupManifestUpdate: save manifest: lManifestSaveCurrent = 8192, lManifestSaveSize = 3
 P00  DEBUG:     Backup->processManifest=>: lSizeTotal = 8243
@@ -157,7 +157,7 @@ P00   INFO: full backup size = 8KB
 P00  DEBUG:     Protocol::Protocol::protocolDestroy(): bComplete = true, iRemoteIdx = [undef], strRemoteType = [undef]
 P00  DEBUG:     Protocol::Protocol::protocolDestroy=>: iExitStatus = 0
 P00   INFO: new backup label = [BACKUP-FULL-1]
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
 P00  DEBUG:     Backup->process: move [TEST_PATH]/db-master/repo/temp/db.tmp to [TEST_PATH]/db-master/repo/backup/db/[BACKUP-FULL-1]
 P00  DEBUG:     File->move(): bDestinationPathCreate = <false>, strDestinationFile = [BACKUP-FULL-1], strDestinationPathType = backup:cluster, strSourceFile = [undef], strSourcePathType = backup:tmp
 P00  DEBUG:     File->move(): bDestinationPathCreate = true, strDestinationFile = backup.history/2016/[BACKUP-FULL-1].manifest.gz, strDestinationPathType = backup:cluster, strSourceFile = [BACKUP-FULL-1]/backup.manifest.gz, strSourcePathType = backup:cluster
@@ -442,7 +442,7 @@ P00   INFO: full backup size = 8KB
 P00  DEBUG:     Protocol::Protocol::protocolDestroy(): bComplete = true, iRemoteIdx = [undef], strRemoteType = [undef]
 P00  DEBUG:     Protocol::Protocol::protocolDestroy=>: iExitStatus = 0
 P00   INFO: new backup label = [BACKUP-FULL-2]
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
 P00  DEBUG:     Backup->process: move [TEST_PATH]/db-master/repo/temp/db.tmp to [TEST_PATH]/db-master/repo/backup/db/[BACKUP-FULL-2]
 P00  DEBUG:     File->move(): bDestinationPathCreate = <false>, strDestinationFile = [BACKUP-FULL-2], strDestinationPathType = backup:cluster, strSourceFile = [undef], strSourcePathType = backup:tmp
 P00  DEBUG:     File->move(): bDestinationPathCreate = true, strDestinationFile = backup.history/2016/[BACKUP-FULL-2].manifest.gz, strDestinationPathType = backup:cluster, strSourceFile = [BACKUP-FULL-2]/backup.manifest.gz, strSourcePathType = backup:cluster
@@ -603,7 +603,7 @@ P00  DEBUG:     File->exists(): strPath = [TEST_PATH]/db-master/db/base/postmast
 P00  DEBUG:     File->exists=>: bExists = false
 P00  DEBUG:     File->exists(): strPath = [TEST_PATH]/db-master/db/base/PG_VERSION, strPathType = db:absolute
 P00  DEBUG:     File->exists=>: bExists = true
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = [TEST_PATH]/db-master/db/base/backup.info, strDestinationPathType = db:absolute, strGroup = [undef], strMode = <0640>, strSourceFile = backup.info, strSourcePathType = backup:cluster, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = [TEST_PATH]/db-master/db/base/backup.info, strDestinationPathType = db:absolute, strGroup = [undef], strMode = <0640>, strSourceFile = backup.info, strSourcePathType = backup:cluster, strUser = [undef]
 P00  DEBUG:     BackupInfo->new(): bValidate = false, strBackupClusterPath = [TEST_PATH]/db-master/db/base
 P00  DEBUG:     File->remove(): bIgnoreMissing = false, bTemp = [undef], strPath = [TEST_PATH]/db-master/db/base/backup.info, strPathType = db:absolute
 P00  DEBUG:     File->remove=>: bRemoved = true
@@ -612,7 +612,7 @@ P00  DEBUG:     BackupInfo->current=>: bTest = true
 P00   INFO: restore backup set [BACKUP-FULL-2]
 P00  DEBUG:     File->exists(): strPath = [BACKUP-FULL-2], strPathType = backup:cluster
 P00  DEBUG:     File->exists=>: bExists = true
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = [TEST_PATH]/db-master/db/base/backup.manifest, strDestinationPathType = db:absolute, strGroup = [undef], strMode = <0640>, strSourceFile = [BACKUP-FULL-2]/backup.manifest, strSourcePathType = backup:cluster, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = [TEST_PATH]/db-master/db/base/backup.manifest, strDestinationPathType = db:absolute, strGroup = [undef], strMode = <0640>, strSourceFile = [BACKUP-FULL-2]/backup.manifest, strSourcePathType = backup:cluster, strUser = [undef]
 P00  DEBUG:     Restore->manifestOwnershipCheck(): oManifest = [object]
 P00  DEBUG:     File->remove(): bIgnoreMissing = <true>, bTemp = [undef], strPath = [TEST_PATH]/db-master/db/base/global/pg_control, strPathType = db:absolute
 P00  DEBUG:     File->remove=>: bRemoved = true
@@ -761,7 +761,7 @@ P00   INFO: wrote [TEST_PATH]/db-master/db/base/recovery.conf
 P00   INFO: restore global/pg_control (copied last to ensure aborted restores cannot be started)
 P00  DEBUG:     File->exists(): strPath = [TEST_PATH]/db-master/db/base/global/pg_control, strPathType = db:absolute
 P00  DEBUG:     File->exists=>: bExists = false
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = true, lModificationTime = [MODIFICATION-TIME-1], strDestinationFile = [TEST_PATH]/db-master/db/base/global/pg_control, strDestinationPathType = db:absolute, strGroup = [GROUP-1], strMode = 0600, strSourceFile = [BACKUP-FULL-2]/pg_data/global/pg_control.gz, strSourcePathType = backup:cluster, strUser = [USER-1]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = <false>, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = true, fnExtra = [undef], lModificationTime = [MODIFICATION-TIME-1], strDestinationFile = [TEST_PATH]/db-master/db/base/global/pg_control, strDestinationPathType = db:absolute, strGroup = [GROUP-1], strMode = 0600, strSourceFile = [BACKUP-FULL-2]/pg_data/global/pg_control.gz, strSourcePathType = backup:cluster, strUser = [USER-1]
 P00  DEBUG:     File->owner(): strFile = [TEST_PATH]/db-master/db/base/global/pg_control.pgbackrest.tmp, strGroup = [GROUP-1], strPathType = absolute, strUser = [USER-1]
 P00  DEBUG:     RestoreFile::restoreLog(): bCopy = true, bForce = false, bZero = false, iLocalId = [undef], lModificationTime = [MODIFICATION-TIME-1], lSize = 8192, lSizeCurrent = 51, lSizeTotal = 8243, strChecksum = 2ee0de0a5fb5cf15f4a24e72b368c41f7e187003, strDbFile = [TEST_PATH]/db-master/db/base/global/pg_control
 P00   INFO: restore file [TEST_PATH]/db-master/db/base/global/pg_control (8KB, 100%) checksum 2ee0de0a5fb5cf15f4a24e72b368c41f7e187003
@@ -1054,7 +1054,7 @@ P00   INFO: incr backup size = 18B
 P00  DEBUG:     Protocol::Protocol::protocolDestroy(): bComplete = true, iRemoteIdx = [undef], strRemoteType = [undef]
 P00  DEBUG:     Protocol::Protocol::protocolDestroy=>: iExitStatus = 0
 P00   INFO: new backup label = [BACKUP-INCR-1]
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
 P00  DEBUG:     Backup->process: move [TEST_PATH]/db-master/repo/temp/db.tmp to [TEST_PATH]/db-master/repo/backup/db/[BACKUP-INCR-1]
 P00  DEBUG:     File->move(): bDestinationPathCreate = <false>, strDestinationFile = [BACKUP-INCR-1], strDestinationPathType = backup:cluster, strSourceFile = [undef], strSourcePathType = backup:tmp
 P00  DEBUG:     File->move(): bDestinationPathCreate = true, strDestinationFile = backup.history/2016/[BACKUP-INCR-1].manifest.gz, strDestinationPathType = backup:cluster, strSourceFile = [BACKUP-INCR-1]/backup.manifest.gz, strSourcePathType = backup:cluster
@@ -1377,7 +1377,7 @@ P00   INFO: incr backup size = 25B
 P00  DEBUG:     Protocol::Protocol::protocolDestroy(): bComplete = true, iRemoteIdx = [undef], strRemoteType = [undef]
 P00  DEBUG:     Protocol::Protocol::protocolDestroy=>: iExitStatus = 0
 P00   INFO: new backup label = [BACKUP-INCR-2]
-P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
+P00  DEBUG:     File->copy(): bAppendChecksum = <false>, bDestinationCompress = true, bDestinationPathCreate = <false>, bIgnoreMissingSource = <false>, bSourceCompressed = <false>, fnExtra = [undef], lModificationTime = [undef], strDestinationFile = backup.manifest.gz, strDestinationPathType = backup:tmp, strGroup = [undef], strMode = <0640>, strSourceFile = backup.manifest, strSourcePathType = backup:tmp, strUser = [undef]
 P00  DEBUG:     Backup->process: move [TEST_PATH]/db-master/repo/temp/db.tmp to [TEST_PATH]/db-master/repo/backup/db/[BACKUP-INCR-2]
 P00  DEBUG:     File->move(): bDestinationPathCreate = <false>, strDestinationFile = [BACKUP-INCR-2], strDestinationPathType = backup:cluster, strSourceFile = [undef], strSourcePathType = backup:tmp
 P00  DEBUG:     File->move(): bDestinationPathCreate = true, strDestinationFile = backup.history/2016/[BACKUP-INCR-2].manifest.gz, strDestinationPathType = backup:cluster, strSourceFile = [BACKUP-INCR-2]/backup.manifest.gz, strSourcePathType = backup:cluster

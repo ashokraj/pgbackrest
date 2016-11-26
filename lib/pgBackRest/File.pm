@@ -8,6 +8,7 @@ use warnings FATAL => qw(all);
 use Carp qw(confess);
 use English '-no_match_vars';
 
+use B qw(svref_2object);
 use Exporter qw(import);
     our @EXPORT = qw();
 use Fcntl qw(:mode :flock O_RDONLY O_WRONLY O_CREAT);
@@ -16,6 +17,7 @@ use File::Copy qw(cp);
 use File::Path qw(make_path remove_tree);
 use File::stat;
 use IO::Handle;
+use JSON::PP;
 
 use pgBackRest::Common::Exception;
 use pgBackRest::Common::Log;
@@ -95,6 +97,9 @@ sub new
     {
         confess &log(ASSERT, 'oProtocol must be defined');
     }
+
+    # Create JSON object
+    $self->{oJSON} = JSON::PP->new()->canonical()->allow_nonref();
 
     # Return from function and log return values if any
     return logDebugReturn
@@ -1300,7 +1305,9 @@ sub copy
         $bDestinationPathCreate,
         $strUser,
         $strGroup,
-        $bAppendChecksum
+        $bAppendChecksum,
+        # $strExtraPackage,
+        $fnExtra,
     ) =
         logDebugParam
         (
@@ -1317,7 +1324,9 @@ sub copy
             {name => 'bDestinationPathCreate', default => false},
             {name => 'strUser', required => false},
             {name => 'strGroup', required => false},
-            {name => 'bAppendChecksum', default => false}
+            {name => 'bAppendChecksum', default => false},
+            # {name => 'strExtraPackage', required => false},
+            {name => 'fnExtra', required => false},
         );
 
     # Set working variables
@@ -1432,6 +1441,13 @@ sub copy
                 $oParamHash{source_file} = $strSourceOp;
                 $oParamHash{source_compressed} = $bSourceCompressed;
                 $oParamHash{destination_compress} = $bDestinationCompress;
+
+                if (defined($fnExtra))
+                {
+                    # $oParamHash{fn_extra_package} = $strExtraPackage;
+                    $oParamHash{fn_extra} = (svref_2object($fnExtra))->GV->NAME;
+                    undef($fnExtra);
+                }
             }
         }
         # Else if source is local and destination is remote
@@ -1515,8 +1531,8 @@ sub copy
         # Transfer the file (skip this for copies where both sides are remote)
         if ($strRemoteOp ne OP_FILE_COPY)
         {
-            ($strChecksum, $iFileSize) =
-                $self->{oProtocol}->binaryXfer($hIn, $hOut, $strRemote, $bSourceCompressed, $bDestinationCompress);
+            ($strChecksum, $iFileSize, $hExtra) =
+                $self->{oProtocol}->binaryXfer($hIn, $hOut, $strRemote, $bSourceCompressed, $bDestinationCompress, undef, $fnExtra);
         }
 
         # If this is the controlling process then wait for OK from remote
@@ -1527,10 +1543,10 @@ sub copy
 
             eval
             {
-                $strOutput = $self->{oProtocol}->outputRead(true, $bIgnoreMissingSource);
+                my $hResult = $self->{oJSON}->decode($self->{oProtocol}->outputRead(true, $bIgnoreMissingSource));
 
                 # Check the result of the remote call
-                if (substr($strOutput, 0, 1) eq 'Y')
+                if ($hResult->{bResult})
                 {
                     # If the operation was purely remote, get checksum/size
                     if ($strRemoteOp eq OP_FILE_COPY ||
@@ -1542,25 +1558,9 @@ sub copy
                             confess &log(ASSERT, "checksum and size are already defined, but shouldn't be");
                         }
 
-                        # Parse output and check to make sure tokens are defined
-                        my @stryToken = split(/ /, $strOutput);
-
-                        if (!defined($stryToken[1]) || !defined($stryToken[2]) ||
-                            $stryToken[1] eq '?' && $stryToken[2] eq '?')
-                        {
-                            confess &log(ERROR, "invalid return from copy" . (defined($strOutput) ? ": ${strOutput}" : ''));
-                        }
-
-                        # Read the checksum and size
-                        if ($stryToken[1] ne '?')
-                        {
-                            $strChecksum = $stryToken[1];
-                        }
-
-                        if ($stryToken[2] ne '?')
-                        {
-                            $iFileSize = $stryToken[2];
-                        }
+                        $strChecksum = $hResult->{strChecksum};
+                        $iFileSize = $hResult->{iFileSize};
+                        $hExtra = $hResult->{hExtra};
                     }
                 }
                 # Remote called returned false
@@ -1584,10 +1584,12 @@ sub copy
                         or confess &log(ERROR, "cannot close file ${strDestinationTmpOp}");
                     fileRemove($strDestinationTmpOp);
 
-                    return false, undef, undef;
+                    $bResult = false;
                 }
-
-                confess $oException;
+                else
+                {
+                    confess $oException;
+                }
             };
         }
     }
@@ -1598,92 +1600,94 @@ sub copy
         if (!$bSourceCompressed && $bDestinationCompress)
         {
             ($strChecksum, $iFileSize, $hExtra) =
-                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'out', false, true, false);
+                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'out', false, true, false, $fnExtra);
         }
         # If the source is compressed and the destination is not then decompress
         elsif ($bSourceCompressed && !$bDestinationCompress)
         {
-            ($strChecksum, $iFileSize) =
-                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'in', true, false, false);
+            ($strChecksum, $iFileSize, $hExtra) =
+                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'in', true, false, false, $fnExtra);
         }
-        # Else both side are compressed, so copy capturing checksum
+        # Else both sides are compressed, so copy capturing checksum
         elsif ($bSourceCompressed)
         {
-            ($strChecksum, $iFileSize) =
-                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'out', true, true, false);
+            ($strChecksum, $iFileSize, $hExtra) =
+                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'out', true, true, false, $fnExtra);
         }
         else
         {
-            ($strChecksum, $iFileSize) =
-                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'in', false, true, false);
+            ($strChecksum, $iFileSize, $hExtra) =
+                $self->{oProtocol}->binaryXfer($hSourceFile, $hDestinationFile, 'in', false, true, false, $fnExtra);
         }
     }
 
-    # Close the source file (if local)
-    if (defined($hSourceFile))
+    if ($bResult)
     {
-        close($hSourceFile) or confess &log(ERROR, "cannot close file ${strSourceOp}");
-    }
-
-    # Sync and close the destination file (if local)
-    if (defined($hDestinationFile))
-    {
-        $hDestinationFile->sync()
-            or confess &log(ERROR, "unable to sync ${strDestinationTmpOp}", ERROR_FILE_SYNC);
-
-        close($hDestinationFile)
-            or confess &log(ERROR, "cannot close file ${strDestinationTmpOp}");
-    }
-
-    # Checksum and file size should be set if the destination is not remote
-    if ($bResult &&
-        !(!$bSourceRemote && $bDestinationRemote && $bSourceCompressed) &&
-        (!defined($strChecksum) || !defined($iFileSize)))
-    {
-        confess &log(ASSERT, 'checksum or file size not set');
-    }
-
-    # Where the destination is local, set mode, modification time, and perform move to final location
-    if ($bResult && !$bDestinationRemote)
-    {
-        # Set the file Mode if required
-        if (defined($strMode))
+        # Close the source file (if local)
+        if (defined($hSourceFile))
         {
-            chmod(oct($strMode), $strDestinationTmpOp)
-                or confess &log(ERROR, "unable to set mode for local ${strDestinationTmpOp}");
+            close($hSourceFile) or confess &log(ERROR, "cannot close file ${strSourceOp}");
         }
 
-        # Set the file modification time if required
-        if (defined($lModificationTime))
+        # Sync and close the destination file (if local)
+        if (defined($hDestinationFile))
         {
-            utime($lModificationTime, $lModificationTime, $strDestinationTmpOp)
-                or confess &log(ERROR, "unable to set time for local ${strDestinationTmpOp}");
+            $hDestinationFile->sync()
+                or confess &log(ERROR, "unable to sync ${strDestinationTmpOp}", ERROR_FILE_SYNC);
+
+            close($hDestinationFile)
+                or confess &log(ERROR, "cannot close file ${strDestinationTmpOp}");
         }
 
-        # set user and/or group if required
-        if (defined($strUser) || defined($strGroup))
+        # Checksum and file size should be set if the destination is not remote
+        if (!(!$bSourceRemote && $bDestinationRemote && $bSourceCompressed) &&
+            (!defined($strChecksum) || !defined($iFileSize)))
         {
-            $self->owner(PATH_ABSOLUTE, $strDestinationTmpOp, $strUser, $strGroup);
+            confess &log(ASSERT, 'checksum or file size not set');
         }
 
-        # Replace checksum in destination filename (if exists)
-        if ($bAppendChecksum)
+        # Where the destination is local, set mode, modification time, and perform move to final location
+        if (!$bDestinationRemote)
         {
-            # Replace destination filename
-            if ($bDestinationCompress)
+            # Set the file Mode if required
+            if (defined($strMode))
             {
-                $strDestinationOp =
-                    substr($strDestinationOp, 0, length($strDestinationOp) - length($self->{strCompressExtension}) - 1) .
-                    '-' . $strChecksum . '.' . $self->{strCompressExtension};
+                chmod(oct($strMode), $strDestinationTmpOp)
+                    or confess &log(ERROR, "unable to set mode for local ${strDestinationTmpOp}");
             }
-            else
-            {
-                $strDestinationOp .= '-' . $strChecksum;
-            }
-        }
 
-        # Move the file from tmp to final destination
-        fileMove($strDestinationTmpOp, $strDestinationOp, $bDestinationPathCreate);
+            # Set the file modification time if required
+            if (defined($lModificationTime))
+            {
+                utime($lModificationTime, $lModificationTime, $strDestinationTmpOp)
+                    or confess &log(ERROR, "unable to set time for local ${strDestinationTmpOp}");
+            }
+
+            # set user and/or group if required
+            if (defined($strUser) || defined($strGroup))
+            {
+                $self->owner(PATH_ABSOLUTE, $strDestinationTmpOp, $strUser, $strGroup);
+            }
+
+            # Replace checksum in destination filename (if exists)
+            if ($bAppendChecksum)
+            {
+                # Replace destination filename
+                if ($bDestinationCompress)
+                {
+                    $strDestinationOp =
+                        substr($strDestinationOp, 0, length($strDestinationOp) - length($self->{strCompressExtension}) - 1) .
+                        '-' . $strChecksum . '.' . $self->{strCompressExtension};
+                }
+                else
+                {
+                    $strDestinationOp .= '-' . $strChecksum;
+                }
+            }
+
+            # Move the file from tmp to final destination
+            fileMove($strDestinationTmpOp, $strDestinationOp, $bDestinationPathCreate);
+        }
     }
 
     # Return from function and log return values if any

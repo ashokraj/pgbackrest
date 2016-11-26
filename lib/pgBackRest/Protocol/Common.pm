@@ -126,22 +126,6 @@ use constant OP_PARAM_ZERO                                          => 'bZero';
     push @EXPORT, qw(OP_PARAM_ZERO);
 
 ####################################################################################################################################
-# Load the C library if present
-####################################################################################################################################
-my $bLibC = false;
-
-eval
-{
-    # Load the C library only if page checksums are required
-    require pgBackRest::LibC;
-    pgBackRest::LibC->import(qw(:checksum));
-
-    $bLibC = true;
-
-    return 1;
-} or do {};
-
-####################################################################################################################################
 # CONSTRUCTOR
 ####################################################################################################################################
 sub new
@@ -304,6 +288,7 @@ sub binaryXfer
     my $bSourceCompressed = shift;
     my $bDestinationCompress = shift;
     my $bProtocol = shift;
+    my $fnExtra = shift;
 
     # The input stream must be defined
     my $oIn;
@@ -350,10 +335,12 @@ sub binaryXfer
     my $strMessage = undef;
 
     # Data that will be passed back (sha1 checksum, size, extra data)
-    my $hMessage = {hExtra => {bValid => true}};
-    # my $strChecksum = undef;
-    # my $iFileSize = undef;
-    # my $bPageChecksum = true;
+    my $hMessage = {};
+
+    if (defined($fnExtra))
+    {
+        $hMessage->{hExtra} = {};
+    }
 
     # Read from the protocol stream
     if ($strRemote eq 'in')
@@ -472,6 +459,9 @@ sub binaryXfer
                 # If the block contains data, write it
                 if ($iBlockSize > 0)
                 {
+                    # Do extra processing on the buffer if requested
+                    $fnExtra->(\$tBuffer, $iBlockSize, $hMessage->{hExtra}) if defined($fnExtra);
+
                     # Add data to checksum and size
                     if (!$bProtocol)
                     {
@@ -532,13 +522,8 @@ sub binaryXfer
                 # If block size > 0 then compress
                 if ($iBlockSize > 0)
                 {
-                    if ($bLibC && $hMessage->{hExtra}{bValid})
-                    {
-                        if ($iBlockSize % 8192 != 0 || !pageChecksumBuffer($tUncompressedBuffer, $iBlockSize, 0, 8192))
-                        {
-                            $hMessage->{hExtra}{bValid} = false;
-                        }
-                    }
+                    # Do extra processing on the buffer if requested
+                    $fnExtra->(\$tUncompressedBuffer, $iBlockSize, $hMessage->{hExtra}) if defined($fnExtra);
 
                     # Update checksum and filesize
                     $oSHA->add($tUncompressedBuffer);
@@ -565,7 +550,7 @@ sub binaryXfer
                     }
                 }
             }
-            while ($iBlockSize > 0);
+            while ($iBlockSize == $self->{iBufferMax});
 
             # If good so far flush out the last bytes
             if ($iZLibStatus == Z_OK)
@@ -690,9 +675,9 @@ sub binaryXfer
                     }
                 }
             }
-            while ($iBlockSize > 0);
+            while ($iBlockSize == $self->{iBufferMax});
 
-            # Check decompression get checksum
+            # Check decompression, get checksum
             if ($bDestinationCompress)
             {
                 # Make sure the decompression succeeded (iBlockSize < 0 indicates remote error, handled later)
