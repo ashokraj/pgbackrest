@@ -8,7 +8,6 @@ use warnings FATAL => qw(all);
 use Carp qw(confess);
 use English '-no_match_vars';
 
-use B qw(svref_2object);
 use Exporter qw(import);
     our @EXPORT = qw();
 use Fcntl qw(:mode :flock O_RDONLY O_WRONLY O_CREAT);
@@ -1306,8 +1305,7 @@ sub copy
         $strUser,
         $strGroup,
         $bAppendChecksum,
-        # $strExtraPackage,
-        $fnExtra,
+        $strExtraFunction,
     ) =
         logDebugParam
         (
@@ -1325,8 +1323,7 @@ sub copy
             {name => 'strUser', required => false},
             {name => 'strGroup', required => false},
             {name => 'bAppendChecksum', default => false},
-            # {name => 'strExtraPackage', required => false},
-            {name => 'fnExtra', required => false},
+            {name => 'strExtraFunction', required => false},
         );
 
     # Set working variables
@@ -1338,6 +1335,7 @@ sub copy
         $strDestinationPathType : $self->pathGet($strDestinationPathType, $strDestinationFile);
     my $strDestinationTmpOp = $strDestinationPathType eq PIPE_STDOUT ?
         undef : $self->pathGet($strDestinationPathType, $strDestinationFile, true);
+    my $fnExtra = defined($strExtraFunction) ? eval("\\&${strExtraFunction}") : undef;
 
     # Checksum and size variables
     my $strChecksum = undef;
@@ -1442,11 +1440,9 @@ sub copy
                 $oParamHash{source_compressed} = $bSourceCompressed;
                 $oParamHash{destination_compress} = $bDestinationCompress;
 
-                if (defined($fnExtra))
+                if (defined($strExtraFunction))
                 {
-                    $oParamHash{fn_extra_package} = 'pgBackRest::BackupFile';
-                    $oParamHash{fn_extra} = (svref_2object($fnExtra))->GV->NAME;
-                    undef($fnExtra);
+                    $oParamHash{extra_function} = $strExtraFunction;
                 }
             }
         }

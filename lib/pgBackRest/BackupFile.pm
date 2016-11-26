@@ -157,8 +157,7 @@ sub backupFile
             undef,                                                  # Do not set original mode
             true,                                                   # Create the destination directory if it does not exist
             undef, undef, undef,                                    # Unused
-            # $bChecksumPage ? 'pgBackRest::BackupFile' : undef,      # Package containing function to process page checksums
-            $bChecksumPage ? \&backupChecksumPage : undef);         # Function to process page checksums
+            $bChecksumPage ? 'pgBackRest::BackupFile::backupChecksumPage' : undef); # Function to process page checksums
 
         # If source file is missing then assume the database removed it (else corruption and nothing we can do!)
         if (!$bCopyResult)

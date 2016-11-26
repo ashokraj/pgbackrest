@@ -111,8 +111,6 @@ sub commandProcess
     if ($strCommand eq OP_FILE_COPY || $strCommand eq OP_FILE_COPY_IN || $strCommand eq OP_FILE_COPY_OUT)
     {
         my $hResult = {};
-        my $fnExtra = defined($self->paramGet('fn_extra', false)) ?
-            eval('\\&' . $self->paramGet('fn_extra_package') . '::' . $self->paramGet('fn_extra')) : undef;
 
         # Copy a file locally
         if ($strCommand eq OP_FILE_COPY)
@@ -154,7 +152,7 @@ sub commandProcess
                 $self->paramGet('source_compressed'),
                 $self->paramGet('destination_compress'),
                 undef, undef, undef, undef, undef, undef, undef,
-                $fnExtra);
+                $self->paramGet('extra_function', false));
         }
 
         $self->outputWrite($self->{oJSON}->encode($hResult));
