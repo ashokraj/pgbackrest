@@ -1444,7 +1444,7 @@ sub copy
 
                 if (defined($fnExtra))
                 {
-                    # $oParamHash{fn_extra_package} = $strExtraPackage;
+                    $oParamHash{fn_extra_package} = 'pgBackRest::BackupFile';
                     $oParamHash{fn_extra} = (svref_2object($fnExtra))->GV->NAME;
                     undef($fnExtra);
                 }

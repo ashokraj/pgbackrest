@@ -111,11 +111,8 @@ sub commandProcess
     if ($strCommand eq OP_FILE_COPY || $strCommand eq OP_FILE_COPY_IN || $strCommand eq OP_FILE_COPY_OUT)
     {
         my $hResult = {};
-        my $fnExtra = defined($self->paramGet('fn_extra', false)) ? \&pgBackRest::BackupFile::backupChecksumPage : undef;
-        # !!! Should be like this, but ->NAME does not give the package
-        # my $fnExtra = defined($self->paramGet('fn_extra', false)) ?
-        #     eval('\\&' . $self->paramGet('fn_extra_package') . '::' . $self->paramGet('fn_extra')) : undef;
-        # defined($self->paramGet('fn_extra', false)) ? eval('\\&' . $self->paramGet('fn_extra')) : undef);
+        my $fnExtra = defined($self->paramGet('fn_extra', false)) ?
+            eval('\\&' . $self->paramGet('fn_extra_package') . '::' . $self->paramGet('fn_extra')) : undef;
 
         # Copy a file locally
         if ($strCommand eq OP_FILE_COPY)
