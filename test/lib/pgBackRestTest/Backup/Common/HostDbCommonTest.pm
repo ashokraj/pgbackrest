@@ -634,6 +634,7 @@ sub restoreCompare
 
         # !!! TEMP
         $oActualManifest->remove(MANIFEST_SECTION_TARGET_FILE, $strName, MANIFEST_SUBKEY_CHECKSUM_PAGE);
+        delete(${$oExpectedManifestRef}{&MANIFEST_SECTION_TARGET_FILE}{$strName}{&MANIFEST_SUBKEY_CHECKSUM_PAGE});
     }
 
     # If the link section is empty then delete it and the default section
